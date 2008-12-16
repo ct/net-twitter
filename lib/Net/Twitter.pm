@@ -35,7 +35,11 @@ sub new {
 
     $conf{twittervision} = '0' unless defined $conf{twittervision};
 
-    $conf{ua} = LWP::UserAgent->new();
+    $conf{useragent_class} ||= 'LWP::UserAgent';
+    eval "use $conf{useragent_class}";
+    die $@ if $@;
+
+    $conf{ua} = $conf{useragent_class}->new();
 
     $conf{username} = $conf{user} if defined $conf{user};
     $conf{password} = $conf{pass} if defined $conf{pass};
@@ -52,7 +56,7 @@ sub new {
     $conf{ua}->env_proxy();
 
     if ( $conf{twittervision} ) {
-        $conf{tvua} = LWP::UserAgent->new();
+        $conf{tvua} = $conf{useragent_class}->new();
         $conf{tvua}
           ->credentials( $conf{tvhost}, $conf{tvrealm}, $conf{username},
             $conf{password} );
@@ -699,6 +703,11 @@ REQUIRED.
 
 OPTIONAL: Sets the User Agent header in the HTTP request. If omitted, this will default to
 "Net::Twitter/$Net::Twitter::Version (Perl)"
+
+=item C<useragent_class>
+
+OPTIONAL: A L<LWP::UserAgent> compatible class, e.g., L<LWP::UserAgent::POE>.
+If omitted, this will default to L<LWP::UserAgent>.
 
 =item C<source>
 
