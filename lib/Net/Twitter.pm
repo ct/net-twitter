@@ -355,8 +355,8 @@ sub new_direct_message {
       $self->{ua}->post( $self->{apiurl} . "/direct_messages/new.json", $args );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;
-
+    return unless $req->is_success;
+    return $req->content =~ /true/ ? 1 : 0;
 }
 
 sub destroy_direct_message {
@@ -422,8 +422,8 @@ sub relationship_exists {
     my $req = $self->{ua}->get( $url );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;
-
+    return unless $req->is_success;
+    return $req->content =~ /true/ ? 1 : 0;
 }
 
 ########################################################################
