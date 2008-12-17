@@ -1,5 +1,9 @@
 Revision history for Net-Twitter
 
+1.21 - Tue Dec 16, 2008
+	o Applied patch from Marc Mims to add useragent_class to new()
+	o Applied patch from Marc Mims to fix bad JSON from twitter in relationship_exists
+
 1.20 - Mon Dec 15, 2008
 	o Man I'm good. Missed a patch before bundling up the dist.
 	o Fixes problem with relationship_exists from http://rt.cpan.org/Ticket/Display.html?id=41667

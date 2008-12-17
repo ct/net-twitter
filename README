@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 1.20
+    This document describes Net::Twitter version 1.21
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -43,6 +43,11 @@ DESCRIPTION
             OPTIONAL: Sets the User Agent header in the HTTP request. If
             omitted, this will default to
             "Net::Twitter/$Net::Twitter::Version (Perl)"
+
+        "useragent_class"
+            OPTIONAL: A LWP::UserAgent compatible class, e.g.,
+            LWP::UserAgent::POE. If omitted, this will default to
+            LWP::UserAgent.
 
         "source"
             OPTIONAL: Sets the source name, so messages will appear as "from
