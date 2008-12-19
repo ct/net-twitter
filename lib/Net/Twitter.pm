@@ -772,8 +772,6 @@ multiple accounts.
 C<apirealm> and C<apihost> are optional and will default to the standard
 twitter versions if omitted.
 
-=over
-
 =item C<http_code>
 
 Returns the HTTP response code of the most recent request.
@@ -781,8 +779,6 @@ Returns the HTTP response code of the most recent request.
 =item C<http_message>
 
 Returns the HTTP response message of the most recent request.
-
-=back
 
 =back
 
