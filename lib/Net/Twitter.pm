@@ -45,6 +45,11 @@ sub new {
 	$conf{useragent_class} ||= 'LWP::UserAgent';
     eval "use $conf{useragent_class}";
     if ($@) {
+	
+		if ( ( defined $conf{no_fallback} ) and ( $conf{no_fallback} ) ) {
+			die $conf{useragent_class} . " failed to load, and no_fallback enabled. Terminating.";			
+		}
+		
 		warn $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
 		$conf{useragent_class} = 'LWP::UserAgent'
 		eval "use $conf{useragent_class}";
@@ -55,7 +60,7 @@ sub new {
 
     ### Create a LWP::UA Object to work with
 
-    $conf{ua} = LWP::UserAgent->new();
+    $conf{ua} = $conf{useragent_class}->new();
 
     $conf{username} = $conf{user} if defined $conf{user};
     $conf{password} = $conf{pass} if defined $conf{pass};
@@ -80,7 +85,7 @@ sub new {
     $conf{tvrealm} = 'Web Password' unless defined $conf{tvrealm};
 
     if ( $conf{twittervision} ) {
-        $conf{tvua} = LWP::UserAgent->new();
+        $conf{tvua} = $conf{useragent_class}->new();
         $conf{tvua}
           ->credentials( $conf{tvhost}, $conf{tvrealm}, $conf{username},
             $conf{password} );
