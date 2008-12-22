@@ -11,6 +11,7 @@ use strict;
 
 use URI::Escape;
 use JSON::Any;
+use LWP::UserAgent;
 
 sub new {
     my $class = shift;
@@ -23,7 +24,6 @@ sub new {
         $conf{apihost}  = 'identi.ca:80';
         $conf{apirealm} = 'Laconica API';
     }
-
     ### Set to default twitter values if not
 
     $conf{apiurl}   = 'http://twitter.com' unless defined $conf{apiurl};
@@ -40,23 +40,20 @@ sub new {
     $conf{source} = 'twitterpm'
       unless defined $conf{source};    ### Make it say "From Net:Twitter"
 
-	### Allow specifying a class other than LWP::UA
+    ### Allow specifying a class other than LWP::UA
 
-	$conf{useragent_class} ||= 'LWP::UserAgent';
+    $conf{useragent_class} ||= 'LWP::UserAgent';
     eval "use $conf{useragent_class}";
     if ($@) {
-	
-		if ( ( defined $conf{no_fallback} ) and ( $conf{no_fallback} ) ) {
-			die $conf{useragent_class} . " failed to load, and no_fallback enabled. Terminating.";			
-		}
-		
-		warn $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
-		$conf{useragent_class} = 'LWP::UserAgent'
-		eval "use $conf{useragent_class}";
-		if ($@) {
-			die $conf{useragent_class} . "failed to load. Terminating."
-		}
-	}
+
+        if ( ( defined $conf{no_fallback} ) and ( $conf{no_fallback} ) ) {
+            die $conf{useragent_class}
+              . " failed to load, and no_fallback enabled. Terminating.";
+        }
+
+        warn $conf{useragent_class}
+          . " failed to load, reverting to LWP::UserAgent";
+    }
 
     ### Create a LWP::UA Object to work with
 
@@ -99,6 +96,10 @@ sub new {
         $conf{tvua}->env_proxy();
     }
 
+    $conf{response_error}  = undef;
+    $conf{response_code}   = undef;
+    $conf{response_method} = undef;
+
     return bless {%conf}, $class;
 }
 
@@ -109,6 +110,11 @@ sub credentials {
     $apihost  ||= 'twitter.com:80';
 
     $self->{ua}->credentials( $apihost, $apirealm, $username, $password );
+}
+
+sub get_error {
+    my $self = shift;
+    return $self->{response_error};
 }
 
 sub http_code {
@@ -124,230 +130,251 @@ sub http_message {
 ### Load method data into %apicalls at runtime.
 
 BEGIN {
-	my %apicalls = (
-	    "public_timeline" => {
-	        "post" => 0,
-	        "uri"  => "/statuses/public_timeline",
-	        "args" => {},
-	    },
-	    "friends_timeline" => {
-	        "post" => 0,
-	        "uri"  => "/statuses/friends_timeline",
-	        "args" => {
-	            "since"    => 0,
-	            "since_id" => 0,
-	            "count"    => 0,
-	            "page"     => 0,
-	        },
-	    },
-	    "user_timeline" => {
-	        "post" => 0,
-	        "uri"  => "/statuses/user_timeline",
-	        "args" => {
-	            "id"       => 0,
-	            "since"    => 0,
-	            "since_id" => 0,
-	            "count"    => 0,
-	            "page"     => 0,
-	        },
-	    },
-	    "show_status" => {
-	        "post" => 0,
-	        "uri"  => "/statuses/show/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "update" => {
-	        "post" => 1,
-	        "uri"  => "/statuses/update",
-	        "args" => {
-	            "status"                => 1,
-	            "in_reply_to_status_id" => 0,
-	        },
-	    },
-	    "replies" => {
-	        "post" => 0,
-	        "uri"  => "/statuses/replies",
-	        "args" => {
-	            "page"     => 1,
-	            "since"    => 1,
-	            "since_id" => 1,
-	        },
-	    },
-	    "destroy_status" => {
-	        "post" => 1,
-	        "uri"  => "/statuses/destroy/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "friends" => {
-	        "post" => 0,
-	        "uri"  => "/statuses/friends",
-	        "args" => {
-	            "id"    => 1,
-	            "page"  => 1,
-	            "since" => 1,
-	        },
-	    },
-	    "followers" => {
-	        "post" => 0,
-	        "uri"  => "/statuses/followers",
-	        "args" => {
-	            "id"   => 1,
-	            "page" => 1,
-	        },
-	    },
-	    "show_user" => {
-	        "post" => 0,
-	        "uri"  => "/users/show/id",
-	        "args" => {
-	            "id"    => 1,
-	            "email" => 1,
-	        },
-	    },
-	    "direct_messages" => {
-	        "post" => 0,
-	        "uri"  => "/direct_messages",
-	        "args" => {
-	            "since"    => 1,
-	            "since_id" => 1,
-	            "page"     => 1,
-	        },
-	    },
-	    "sent_direct_messages" => {
-	        "post" => 0,
-	        "uri"  => "/direct_messages/sent",
-	        "args" => {
-	            "since"    => 1,
-	            "since_id" => 1,
-	            "page"     => 1,
-	        },
-	    },
-	    "new_direct_message" => {
-	        "post" => 1,
-	        "uri"  => "/direct_messages/new",
-	        "args" => {
-	            "user" => 1,
-	            "text" => 1,
-	        },
-	    },
-	    "destroy_direct_message" => {
-	        "post" => 1,
-	        "uri"  => "/direct_messages/destroy/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "create_friend" => {
-	        "post" => 1,
-	        "uri"  => "/friendships/create/id",
-	        "args" => {
-	            "id"     => 1,
-	            "follow" => 1,
-	        },
-	    },
-	    "destroy_friend" => {
-	        "post" => 1,
-	        "uri"  => "/friendships/destroy/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "relationship_exists" => {
-	        "post" => 0,
-	        "uri"  => "/friendships/exists",
-	        "args" => {
-	            "user_a" => 1,
-	            "user_b" => 1,
-	        },
-	    },
-	    "verify_credentials" => {
-	        "post" => 0,
-	        "uri"  => "/account/verify_credentials",
-	        "args" => {},
-	    },
-	    "end_session" => {
-	        "post" => 1,
-	        "uri"  => "/account/end_session",
-	        "args" => {},
-	    },
-	    "update_location" => {
-	        "post" => 1,
-	        "uri"  => "/account/update_location",
-	        "args" => { "location" => 1, },
-	    },
-	    "update_delivery_device" => {
-	        "post" => 1,
-	        "uri"  => "/account/update_delivery_device",
-	        "args" => { "device" => 1, },
-	    },
-	    "rate_limit_status" => {
-	        "post" => 0,
-	        "uri"  => "/account/rate_limit_status",
-	        "args" => {},
-	    },
-	    "favorites" => {
-	        "post" => 0,
-	        "uri"  => "/favorites",
-	        "args" => {
-	            "id"   => 1,
-	            "page" => 1,
-	        },
-	    },
-	    "create_favorite" => {
-	        "post" => 1,
-	        "uri"  => "/favorites/create/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "destroy_favorite" => {
-	        "post" => 1,
-	        "uri"  => "/favorites/destroy/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "enable_notifications" => {
-	        "post" => 1,
-	        "uri"  => "/notifications/follow/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "disable_notifications" => {
-	        "post" => 1,
-	        "uri"  => "/notifications/leave/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "create_block" => {
-	        "post" => 1,
-	        "uri"  => "/blocks/create/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "destroy_block" => {
-	        "post" => 1,
-	        "uri"  => "/blocks/destroy/id",
-	        "args" => { "id" => 1, },
-	    },
-	    "test" => {
-	        "post" => 0,
-	        "uri"  => "/help/test",
-	        "args" => {},
-	    },
-	    "downtime_schedule" => {
-	        "post" => 0,
-	        "uri"  => "/help/downtime_schedule",
-	        "args" => {},
-	    },
-	);
+    my %apicalls = (
+        "public_timeline" => {
+            "post" => 0,
+            "uri"  => "/statuses/public_timeline",
+            "args" => {},
+        },
+        "friends_timeline" => {
+            "post" => 0,
+            "uri"  => "/statuses/friends_timeline",
+            "args" => {
+                "since"    => 0,
+                "since_id" => 0,
+                "count"    => 0,
+                "page"     => 0,
+            },
+        },
+        "user_timeline" => {
+            "post" => 0,
+            "uri"  => "/statuses/user_timeline/ID",
+            "args" => {
+                "id"       => 0,
+                "since"    => 0,
+                "since_id" => 0,
+                "count"    => 0,
+                "page"     => 0,
+            },
+        },
+        "show_status" => {
+            "post" => 0,
+            "uri"  => "/statuses/show/ID",
+            "args" => { "id" => 1, },
+        },
+        "update" => {
+            "post" => 1,
+            "uri"  => "/statuses/update",
+            "args" => {
+                "status"                => 1,
+                "in_reply_to_status_id" => 0,
+            },
+        },
+        "replies" => {
+            "post" => 0,
+            "uri"  => "/statuses/replies",
+            "args" => {
+                "page"     => 0,
+                "since"    => 0,
+                "since_id" => 0,
+            },
+        },
+        "destroy_status" => {
+            "post" => 1,
+            "uri"  => "/statuses/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "friends" => {
+            "post" => 0,
+            "uri"  => "/statuses/friends/ID",
+            "args" => {
+                "id"    => 0,
+                "page"  => 0,
+                "since" => 0,
+            },
+        },
+        "followers" => {
+            "post" => 0,
+            "uri"  => "/statuses/followers",
+            "args" => {
+                "id"   => 0,
+                "page" => 0,
+            },
+        },
+        "show_user" => {
+            "post" => 0,
+            "uri"  => "/users/show/ID",
+            "args" => {
+                "id"    => 2,
+                "email" => 2,
+            },
+        },
+        "direct_messages" => {
+            "post" => 0,
+            "uri"  => "/direct_messages",
+            "args" => {
+                "since"    => 0,
+                "since_id" => 0,
+                "page"     => 0,
+            },
+        },
+        "sent_direct_messages" => {
+            "post" => 0,
+            "uri"  => "/direct_messages/sent",
+            "args" => {
+                "since"    => 0,
+                "since_id" => 0,
+                "page"     => 0,
+            },
+        },
+        "new_direct_message" => {
+            "post" => 1,
+            "uri"  => "/direct_messages/new",
+            "args" => {
+                "user" => 1,
+                "text" => 1,
+            },
+        },
+        "destroy_direct_message" => {
+            "post" => 1,
+            "uri"  => "/direct_messages/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "create_friend" => {
+            "post" => 1,
+            "uri"  => "/friendships/create/ID",
+            "args" => {
+                "id"     => 1,
+                "follow" => 0,
+            },
+        },
+        "destroy_friend" => {
+            "post" => 1,
+            "uri"  => "/friendships/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "relationship_exists" => {
+            "post" => 0,
+            "uri"  => "/friendships/exists",
+            "args" => {
+                "user_a" => 1,
+                "user_b" => 1,
+            },
+        },
+        "verify_credentials" => {
+            "post" => 0,
+            "uri"  => "/account/verify_credentials",
+            "args" => {},
+        },
+        "end_session" => {
+            "post" => 1,
+            "uri"  => "/account/end_session",
+            "args" => {},
+        },
+        "update_profile_colors" => {
+            "post" => 1,
+            "uri"  => "/account/update_profile_colors",
+            "args" => {
+                "profile_background_color"     => 1,
+                "profile_text_color"           => 1,
+                "profile_link_color"           => 1,
+                "profile_sidebar_fill_color"   => 1,
+                "profile_sidebar_border_color" => 1,
+            },
+        },
+        "update_profile_image" => {
+            "post" => 1,
+            "uri"  => "/account/update_profile_image",
+            "args" => { "image" => 1, },
+        },
+        "update_profile_background_image" => {
+            "post" => 1,
+            "uri"  => "/account/update_profile_background_image",
+            "args" => { "image" => 1, },
+        },
+        "update_delivery_device" => {
+            "post" => 1,
+            "uri"  => "/account/update_delivery_device",
+            "args" => { "device" => 1, },
+        },
+        "rate_limit_status" => {
+            "post" => 0,
+            "uri"  => "/account/rate_limit_status",
+            "args" => {},
+        },
+        "favorites" => {
+            "post" => 0,
+            "uri"  => "/favorites",
+            "args" => {
+                "id"   => 0,
+                "page" => 0,
+            },
+        },
+        "create_favorite" => {
+            "post" => 1,
+            "uri"  => "/favorites/create/ID",
+            "args" => { "id" => 1, },
+        },
+        "destroy_favorite" => {
+            "post" => 1,
+            "uri"  => "/favorites/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "enable_notifications" => {
+            "post" => 1,
+            "uri"  => "/notifications/follow/ID",
+            "args" => { "id" => 1, },
+        },
+        "disable_notifications" => {
+            "post" => 1,
+            "uri"  => "/notifications/leave/ID",
+            "args" => { "id" => 1, },
+        },
+        "create_block" => {
+            "post" => 1,
+            "uri"  => "/blocks/create/ID",
+            "args" => { "id" => 1, },
+        },
+        "destroy_block" => {
+            "post" => 1,
+            "uri"  => "/blocks/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "test" => {
+            "post" => 0,
+            "uri"  => "/help/test",
+            "args" => {},
+        },
+        "downtime_schedule" => {
+            "post" => 0,
+            "uri"  => "/help/downtime_schedule",
+            "args" => {},
+        },
+    );
 
 ### Have to turn strict refs off in order to insert subrefs by value.
-no strict "refs";
+    no strict "refs";
 
 ### For each method name in %apicalls insert a stub method to handle request.
 
-foreach my $methodname ( keys %apicalls ) {
+    foreach my $methodname ( keys %apicalls ) {
 
-    *{$methodname} = sub {	
-        my $self = shift;
+        *{$methodname} = sub {
+            my $self = shift;
+            my $whoami;
 
-        print "$methodname:\n";
+            ### Store the method name, since a sub doesn't know it's name without
+            ### a bit of work and more dependancies than are really prudent.
+            eval { $whoami = $methodname };
 
-		### Right now let's just print out the url to make sure it works
-        my $url = $self->{apiurl} . $apicalls{$methodname}->{uri};
-        print "URL: $url\n";
-        print shift;
+            ### Right now let's just print out the url to make sure it works
+            my $url = $self->{apiurl} . $apicalls{$methodname}->{uri};
+            print "URL: $url\n";
+            print "WhoAmI? $whoami\n";
+            print shift;
 
-      };
+        };
+    }
 }
 1;
 __END__
