@@ -12,6 +12,7 @@ use strict;
 use URI::Escape;
 use JSON::Any;
 use LWP::UserAgent;
+use Data::Dumper;
 
 sub new {
     my $class = shift;
@@ -361,18 +362,37 @@ BEGIN {
 
         *{$methodname} = sub {
             my $self = shift;
+            my $args = shift;
             my $whoami;
-
+            my $url;
             ### Store the method name, since a sub doesn't know it's name without
             ### a bit of work and more dependancies than are really prudent.
             eval { $whoami = $methodname };
 
-            ### Right now let's just print out the url to make sure it works
-            my $url = $self->{apiurl} . $apicalls{$methodname}->{uri};
-            print "URL: $url\n";
-            print "WhoAmI? $whoami\n";
-            print shift;
+			### Get this method's definition from the table
+            my $method_def = $apicalls{$whoami};
 
+			### Create the URL. If it ends in /ID it needs the id param substituted
+			### into the URL and not as an arg.
+            if ( $method_def->{uri} =~ s|/ID|| ) {
+                if ( defined $args->{id} ) {
+                    $url = $method_def->{uri} . delete($args->{id}) . ".json";
+                }
+                else {
+                    warn "The field id is required and not specified";
+                    $self->{response_error} = {
+                        "request" => $method_def->{uri},
+                        "error" => "The field id is required and not specified"
+                    };
+					return undef;
+                }
+            } else {
+				$url = $method_def->{uri} . ".json";
+			}
+			
+            ### Right now let's just print out the url to make sure it works
+
+            print "URL: $url\n";
         };
     }
 }
