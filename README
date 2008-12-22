@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 1.21
+    This document describes Net::Twitter version 1.22
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -109,11 +109,17 @@ DESCRIPTION
         "apirealm" and "apihost" are optional and will default to the
         standard twitter versions if omitted.
 
-        "http_code"
-            Returns the HTTP response code of the most recent request.
+    "http_code"
+        Returns the HTTP response code of the most recent request.
 
-        "http_message"
-            Returns the HTTP response message of the most recent request.
+    "http_message"
+        Returns the HTTP response message of the most recent request.
+
+    "get_error"
+        If the last request returned an error, the hashref containing the
+        error message can be retrieved with "get_error". This will provide
+        some additional debugging information in addition to the http code
+        and message above.
 
   STATUS METHODS
     "update(...)"

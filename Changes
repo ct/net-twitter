@@ -1,5 +1,8 @@
 Revision history for Net-Twitter
 
+1.22 - Mon Dec 22, 2008
+	o Added get_error method for http://rt.cpan.org/Ticket/Display.html?id=41824
+	
 1.21 - Tue Dec 16, 2008
 	o Applied patch from Marc Mims to add useragent_class to new()
 	o Applied patch from Marc Mims to fix bad JSON from twitter in relationship_exists
