@@ -243,7 +243,7 @@ sub destroy_status {
       $self->{ua}->post( $self->{apiurl} . "/statuses/destroy/$id.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 }
 
@@ -263,7 +263,7 @@ sub friends {
     my $req = $self->{ua}->get($url);
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -285,7 +285,7 @@ sub followers {
     my $req = $self->{ua}->get($url);
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -341,7 +341,7 @@ sub direct_messages {
     my $req = $self->{ua}->get($url);
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -364,7 +364,7 @@ sub sent_direct_messages {
     my $req = $self->{ua}->get($url);
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -376,7 +376,7 @@ sub new_direct_message {
       $self->{ua}->post( $self->{apiurl} . "/direct_messages/new.json", $args );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -389,7 +389,7 @@ sub destroy_direct_message {
       ->post( $self->{apiurl} . "/direct_messages/destroy/$id.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -423,7 +423,7 @@ sub create_friend {
     }
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -435,7 +435,7 @@ sub destroy_friend {
       $self->{ua}->post( $self->{apiurl} . "/friendships/destroy/$id.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -465,7 +465,7 @@ sub verify_credentials {
       $self->{ua}->get( $self->{apiurl} . "/account/verify_credentials.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -476,7 +476,7 @@ sub end_session {
     my $req = $self->{ua}->post( $self->{apiurl} . "/account/end_session" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -490,7 +490,7 @@ sub update_location {
 
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -504,7 +504,7 @@ sub update_profile_colors {
 
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -518,7 +518,7 @@ sub update_profile_image {
 
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -533,7 +533,7 @@ sub update_profile_background_image {
 
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -548,7 +548,7 @@ sub update_delivery_device {
 
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -561,7 +561,7 @@ sub rate_limit_status {
 
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -575,7 +575,7 @@ sub update_profile {
 
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -593,7 +593,7 @@ sub favorites {
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
 
-    $self->{response_error} = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error} = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -606,7 +606,7 @@ sub create_favorite {
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
 
-    $self->{response_error} = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error} = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -619,7 +619,7 @@ sub destroy_favorite {
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
 
-    $self->{response_error} = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error} = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -637,7 +637,7 @@ sub enable_notifications {
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
 
-    $self->{response_error} = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error} = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -650,7 +650,7 @@ sub disable_notifications {
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
 
-    $self->{response_error} = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error} = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -665,7 +665,7 @@ sub create_block {
     my $req = $self->{ua}->post( $self->{apiurl} . "/blocks/create/$id.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -676,7 +676,7 @@ sub destroy_block {
     my $req = $self->{ua}->post( $self->{apiurl} . "/blocks/destroy/$id.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -691,7 +691,7 @@ sub test {
     my $req = $self->{ua}->get( $self->{apiurl} . "/help/test.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
@@ -703,7 +703,7 @@ sub downtime_schedule {
       $self->{ua}->get( $self->{apiurl} . "/help/downtime_schedule.json" );
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
-    $self->{response_error}   = JSON::Any->jsonToObj( $req -content );
+    $self->{response_error}   = JSON::Any->jsonToObj( $req->content );
     return ( $req->is_success ) ? $self->{response_error} : undef;
 
 }
