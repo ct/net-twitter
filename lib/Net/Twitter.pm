@@ -1245,6 +1245,7 @@ Returns the same text displayed on L<http://twitter.com/home> when a
 maintenance window is scheduled, in the requested format.
  
 =back
+
 =head1 CONFIGURATION AND ENVIRONMENT
   
 Net::Twitter uses LWP internally. Any environment variables that LWP
