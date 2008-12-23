@@ -12,436 +12,484 @@ use strict;
 use URI::Escape;
 use JSON::Any;
 use LWP::UserAgent;
-use Data::Dumper;
+use URI::Escape;
 
 sub new {
-   my $class = shift;
-   my %conf  = @_;
+    my $class = shift;
+    my %conf  = @_;
 
-   ### Add quick identica => 1 switch
+    ### Add quick identica => 1 switch
 
-   if ( ( defined $conf{identica} ) and ( $conf{identica} ) ) {
-      $conf{apiurl}   = 'http://identi.ca/api';
-      $conf{apihost}  = 'identi.ca:80';
-      $conf{apirealm} = 'Laconica API';
-   }
-   ### Set to default twitter values if not
+    if ( ( defined $conf{identica} ) and ( $conf{identica} ) ) {
+        $conf{apiurl}   = 'http://identi.ca/api';
+        $conf{apihost}  = 'identi.ca:80';
+        $conf{apirealm} = 'Laconica API';
+    }
+    ### Set to default twitter values if not
 
-   $conf{apiurl}   = 'http://twitter.com' unless defined $conf{apiurl};
-   $conf{apihost}  = 'twitter.com:80'     unless defined $conf{apihost};
-   $conf{apirealm} = 'Twitter API'        unless defined $conf{apirealm};
+    $conf{apiurl}   = 'http://twitter.com' unless defined $conf{apiurl};
+    $conf{apihost}  = 'twitter.com:80'     unless defined $conf{apihost};
+    $conf{apirealm} = 'Twitter API'        unless defined $conf{apirealm};
 
-   ### Set useragents, HTTP Headers, source codes.
-   $conf{useragent} = "Net::Twitter/$Net::Twitter::VERSION (PERL)"
-     unless defined $conf{useragent};
-   $conf{clientname} = 'Perl Net::Twitter'    unless defined $conf{clientname};
-   $conf{clientver}  = $Net::Twitter::VERSION unless defined $conf{clientver};
-   $conf{clienturl}  = "http://x4.net/twitter/meta.xml"
-     unless defined $conf{clienturl};
-   $conf{source} = 'twitterpm'
-     unless defined $conf{source};    ### Make it say "From Net:Twitter"
+    ### Set useragents, HTTP Headers, source codes.
+    $conf{useragent} = "Net::Twitter/$Net::Twitter::VERSION (PERL)"
+      unless defined $conf{useragent};
+    $conf{clientname} = 'Perl Net::Twitter'    unless defined $conf{clientname};
+    $conf{clientver}  = $Net::Twitter::VERSION unless defined $conf{clientver};
+    $conf{clienturl}  = "http://x4.net/twitter/meta.xml"
+      unless defined $conf{clienturl};
+    $conf{source} = 'twitterpm'
+      unless defined $conf{source};    ### Make it say "From Net:Twitter"
 
-   ### Allow specifying a class other than LWP::UA
+    ### Allow specifying a class other than LWP::UA
 
-   $conf{useragent_class} ||= 'LWP::UserAgent';
-   eval "use $conf{useragent_class}";
-   if ($@) {
+    $conf{useragent_class} ||= 'LWP::UserAgent';
+    eval "use $conf{useragent_class}";
+    if ($@) {
 
-      if ( ( defined $conf{no_fallback} ) and ( $conf{no_fallback} ) ) {
-         die $conf{useragent_class} . " failed to load, and no_fallback enabled. Terminating.";
-      }
+        if ( ( defined $conf{no_fallback} ) and ( $conf{no_fallback} ) ) {
+            die $conf{useragent_class} . " failed to load, and no_fallback enabled. Terminating.";
+        }
 
-      warn $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
-   }
+        warn $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
+    }
 
-   ### Create a LWP::UA Object to work with
+    ### Create a LWP::UA Object to work with
 
-   $conf{ua} = $conf{useragent_class}->new();
+    $conf{ua} = $conf{useragent_class}->new();
 
-   $conf{username} = $conf{user} if defined $conf{user};
-   $conf{password} = $conf{pass} if defined $conf{pass};
+    $conf{username} = $conf{user} if defined $conf{user};
+    $conf{password} = $conf{pass} if defined $conf{pass};
 
-   $conf{ua}->credentials( $conf{apihost}, $conf{apirealm}, $conf{username}, $conf{password} );
+    $conf{ua}->credentials( $conf{apihost}, $conf{apirealm}, $conf{username}, $conf{password} );
 
-   $conf{ua}->agent( $conf{useragent} );
-   $conf{ua}->default_header( "X-Twitter-Client:"         => $conf{clientname} );
-   $conf{ua}->default_header( "X-Twitter-Client-Version:" => $conf{clientver} );
-   $conf{ua}->default_header( "X-Twitter-Client-URL:"     => $conf{clienturl} );
+    $conf{ua}->agent( $conf{useragent} );
+    $conf{ua}->default_header( "X-Twitter-Client:"         => $conf{clientname} );
+    $conf{ua}->default_header( "X-Twitter-Client-Version:" => $conf{clientver} );
+    $conf{ua}->default_header( "X-Twitter-Client-URL:"     => $conf{clienturl} );
 
-   $conf{ua}->env_proxy();
+    $conf{ua}->env_proxy();
 
-   ### Twittervision support. Is this still necessary?
+    ### Twittervision support. Is this still necessary?
 
-   $conf{twittervision} = '0' unless defined $conf{twittervision};
+    $conf{twittervision} = '0' unless defined $conf{twittervision};
 
-   $conf{tvurl}   = 'http://api.twittervision.com' unless defined $conf{tvurl};
-   $conf{tvhost}  = 'api.twittervision.com:80'     unless defined $conf{tvhost};
-   $conf{tvrealm} = 'Web Password'                 unless defined $conf{tvrealm};
+    $conf{tvurl}   = 'http://api.twittervision.com' unless defined $conf{tvurl};
+    $conf{tvhost}  = 'api.twittervision.com:80'     unless defined $conf{tvhost};
+    $conf{tvrealm} = 'Web Password'                 unless defined $conf{tvrealm};
 
-   if ( $conf{twittervision} ) {
-      $conf{tvua} = $conf{useragent_class}->new();
-      $conf{tvua}->credentials( $conf{tvhost}, $conf{tvrealm}, $conf{username}, $conf{password} );
-      $conf{tvua}->agent("Net::Twitter/$Net::Twitter::VERSION");
-      $conf{tvua}->default_header( "X-Twitter-Client:"         => $conf{clientname} );
-      $conf{tvua}->default_header( "X-Twitter-Client-Version:" => $conf{clientver} );
-      $conf{tvua}->default_header( "X-Twitter-Client-URL:"     => $conf{clienturl} );
+    if ( $conf{twittervision} ) {
+        $conf{tvua} = $conf{useragent_class}->new();
+        $conf{tvua}->credentials( $conf{tvhost}, $conf{tvrealm}, $conf{username}, $conf{password} );
+        $conf{tvua}->agent("Net::Twitter/$Net::Twitter::VERSION");
+        $conf{tvua}->default_header( "X-Twitter-Client:"         => $conf{clientname} );
+        $conf{tvua}->default_header( "X-Twitter-Client-Version:" => $conf{clientver} );
+        $conf{tvua}->default_header( "X-Twitter-Client-URL:"     => $conf{clienturl} );
 
-      $conf{tvua}->env_proxy();
-   }
+        $conf{tvua}->env_proxy();
+    }
 
-   $conf{skip_arg_validation}  = 0 unless defined $conf{skip_arg_validation};
-   $conf{allow_undefined_args} = 0 unless defined $conf{allow_undefined_args};
+    $conf{skip_arg_validation}  = 0 unless defined $conf{skip_arg_validation};
+    $conf{allow_undefined_args} = 0 unless defined $conf{allow_undefined_args};
 
-   $conf{response_error}  = undef;
-   $conf{response_code}   = undef;
-   $conf{response_method} = undef;
+    $conf{response_error}  = undef;
+    $conf{response_code}   = undef;
+    $conf{response_method} = undef;
 
-   return bless {%conf}, $class;
+    return bless {%conf}, $class;
 }
 
 sub credentials {
-   my ( $self, $username, $password, $apihost, $apirealm ) = @_;
+    my ( $self, $username, $password, $apihost, $apirealm ) = @_;
 
-   $apirealm ||= 'Twitter API';
-   $apihost  ||= 'twitter.com:80';
+    $apirealm ||= 'Twitter API';
+    $apihost  ||= 'twitter.com:80';
 
-   $self->{ua}->credentials( $apihost, $apirealm, $username, $password );
+    $self->{ua}->credentials( $apihost, $apirealm, $username, $password );
 }
 
 sub get_error {
-   my $self = shift;
-   return $self->{response_error};
+    my $self = shift;
+    return $self->{response_error};
 }
 
 sub http_code {
-   my $self = shift;
-   return $self->{response_code};
+    my $self = shift;
+    return $self->{response_code};
 }
 
 sub http_message {
-   my $self = shift;
-   return $self->{response_message};
+    my $self = shift;
+    return $self->{response_message};
 }
 
 ### Load method data into %apicalls at runtime.
 
 BEGIN {
-   my %apicalls = (
-      "public_timeline" => {
-         "post" => 0,
-         "uri"  => "/statuses/public_timeline",
-         "args" => {},
-      },
-      "friends_timeline" => {
-         "post" => 0,
-         "uri"  => "/statuses/friends_timeline",
-         "args" => {
-            "since"    => 0,
-            "since_id" => 0,
-            "count"    => 0,
-            "page"     => 0,
-         },
-      },
-      "user_timeline" => {
-         "post" => 0,
-         "uri"  => "/statuses/user_timeline/ID",
-         "args" => {
-            "id"       => 0,
-            "since"    => 0,
-            "since_id" => 0,
-            "count"    => 0,
-            "page"     => 0,
-         },
-      },
-      "show_status" => {
-         "post" => 0,
-         "uri"  => "/statuses/show/ID",
-         "args" => { "id" => 1, },
-      },
-      "update" => {
-         "post" => 1,
-         "uri"  => "/statuses/update",
-         "args" => {
-            "status"                => 1,
-            "in_reply_to_status_id" => 0,
-         },
-      },
-      "replies" => {
-         "post" => 0,
-         "uri"  => "/statuses/replies",
-         "args" => {
-            "page"     => 0,
-            "since"    => 0,
-            "since_id" => 0,
-         },
-      },
-      "destroy_status" => {
-         "post" => 1,
-         "uri"  => "/statuses/destroy/ID",
-         "args" => { "id" => 1, },
-      },
-      "friends" => {
-         "post" => 0,
-         "uri"  => "/statuses/friends/ID",
-         "args" => {
-            "id"    => 0,
-            "page"  => 0,
-            "since" => 0,
-         },
-      },
-      "followers" => {
-         "post" => 0,
-         "uri"  => "/statuses/followers",
-         "args" => {
-            "id"   => 0,
-            "page" => 0,
-         },
-      },
-      "show_user" => {
-         "post" => 0,
-         "uri"  => "/users/show/ID",
-         "args" => {
-            "id"    => 2,
-            "email" => 2,
-         },
-      },
-      "direct_messages" => {
-         "post" => 0,
-         "uri"  => "/direct_messages",
-         "args" => {
-            "since"    => 0,
-            "since_id" => 0,
-            "page"     => 0,
-         },
-      },
-      "sent_direct_messages" => {
-         "post" => 0,
-         "uri"  => "/direct_messages/sent",
-         "args" => {
-            "since"    => 0,
-            "since_id" => 0,
-            "page"     => 0,
-         },
-      },
-      "new_direct_message" => {
-         "post" => 1,
-         "uri"  => "/direct_messages/new",
-         "args" => {
-            "user" => 1,
-            "text" => 1,
-         },
-      },
-      "destroy_direct_message" => {
-         "post" => 1,
-         "uri"  => "/direct_messages/destroy/ID",
-         "args" => { "id" => 1, },
-      },
-      "create_friend" => {
-         "post" => 1,
-         "uri"  => "/friendships/create/ID",
-         "args" => {
-            "id"     => 1,
-            "follow" => 0,
-         },
-      },
-      "destroy_friend" => {
-         "post" => 1,
-         "uri"  => "/friendships/destroy/ID",
-         "args" => { "id" => 1, },
-      },
-      "relationship_exists" => {
-         "post" => 0,
-         "uri"  => "/friendships/exists",
-         "args" => {
-            "user_a" => 1,
-            "user_b" => 1,
-         },
-      },
-      "verify_credentials" => {
-         "post" => 0,
-         "uri"  => "/account/verify_credentials",
-         "args" => {},
-      },
-      "end_session" => {
-         "post" => 1,
-         "uri"  => "/account/end_session",
-         "args" => {},
-      },
-      "update_profile_colors" => {
-         "post" => 1,
-         "uri"  => "/account/update_profile_colors",
-         "args" => {
-            "profile_background_color"     => 1,
-            "profile_text_color"           => 1,
-            "profile_link_color"           => 1,
-            "profile_sidebar_fill_color"   => 1,
-            "profile_sidebar_border_color" => 1,
-         },
-      },
-      "update_profile_image" => {
-         "post" => 1,
-         "uri"  => "/account/update_profile_image",
-         "args" => { "image" => 1, },
-      },
-      "update_profile_background_image" => {
-         "post" => 1,
-         "uri"  => "/account/update_profile_background_image",
-         "args" => { "image" => 1, },
-      },
-      "update_delivery_device" => {
-         "post" => 1,
-         "uri"  => "/account/update_delivery_device",
-         "args" => { "device" => 1, },
-      },
-      "rate_limit_status" => {
-         "post" => 0,
-         "uri"  => "/account/rate_limit_status",
-         "args" => {},
-      },
-      "favorites" => {
-         "post" => 0,
-         "uri"  => "/favorites",
-         "args" => {
-            "id"   => 0,
-            "page" => 0,
-         },
-      },
-      "create_favorite" => {
-         "post" => 1,
-         "uri"  => "/favorites/create/ID",
-         "args" => { "id" => 1, },
-      },
-      "destroy_favorite" => {
-         "post" => 1,
-         "uri"  => "/favorites/destroy/ID",
-         "args" => { "id" => 1, },
-      },
-      "enable_notifications" => {
-         "post" => 1,
-         "uri"  => "/notifications/follow/ID",
-         "args" => { "id" => 1, },
-      },
-      "disable_notifications" => {
-         "post" => 1,
-         "uri"  => "/notifications/leave/ID",
-         "args" => { "id" => 1, },
-      },
-      "create_block" => {
-         "post" => 1,
-         "uri"  => "/blocks/create/ID",
-         "args" => { "id" => 1, },
-      },
-      "destroy_block" => {
-         "post" => 1,
-         "uri"  => "/blocks/destroy/ID",
-         "args" => { "id" => 1, },
-      },
-      "test" => {
-         "post" => 0,
-         "uri"  => "/help/test",
-         "args" => {},
-      },
-      "downtime_schedule" => {
-         "post" => 0,
-         "uri"  => "/help/downtime_schedule",
-         "args" => {},
-      },
-   );
+    my %apicalls = (
+        "public_timeline" => {
+            "post" => 0,
+            "uri"  => "/statuses/public_timeline",
+            "args" => {},
+        },
+        "friends_timeline" => {
+            "post" => 0,
+            "uri"  => "/statuses/friends_timeline",
+            "args" => {
+                "since"    => 0,
+                "since_id" => 0,
+                "count"    => 0,
+                "page"     => 0,
+            },
+        },
+        "user_timeline" => {
+            "post" => 0,
+            "uri"  => "/statuses/user_timeline/ID",
+            "args" => {
+                "id"       => 0,
+                "since"    => 0,
+                "since_id" => 0,
+                "count"    => 0,
+                "page"     => 0,
+            },
+        },
+        "show_status" => {
+            "post" => 0,
+            "uri"  => "/statuses/show/ID",
+            "args" => { "id" => 1, },
+        },
+        "update" => {
+            "post" => 1,
+            "uri"  => "/statuses/update",
+            "args" => {
+                "status"                => 1,
+                "in_reply_to_status_id" => 0,
+                "source"                => 0,
+            },
+        },
+        "replies" => {
+            "post" => 0,
+            "uri"  => "/statuses/replies",
+            "args" => {
+                "page"     => 0,
+                "since"    => 0,
+                "since_id" => 0,
+            },
+        },
+        "destroy_status" => {
+            "post" => 1,
+            "uri"  => "/statuses/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "friends" => {
+            "post" => 0,
+            "uri"  => "/statuses/friends/ID",
+            "args" => {
+                "id"    => 0,
+                "page"  => 0,
+                "since" => 0,
+            },
+        },
+        "followers" => {
+            "post" => 0,
+            "uri"  => "/statuses/followers",
+            "args" => {
+                "id"   => 0,
+                "page" => 0,
+            },
+        },
+        "show_user" => {
+            "post" => 0,
+            "uri"  => "/users/show/ID",
+            "args" => {
+                "id"    => 1,
+                "email" => 1,
+            },
+        },
+        "direct_messages" => {
+            "post" => 0,
+            "uri"  => "/direct_messages",
+            "args" => {
+                "since"    => 0,
+                "since_id" => 0,
+                "page"     => 0,
+            },
+        },
+        "sent_direct_messages" => {
+            "post" => 0,
+            "uri"  => "/direct_messages/sent",
+            "args" => {
+                "since"    => 0,
+                "since_id" => 0,
+                "page"     => 0,
+            },
+        },
+        "new_direct_message" => {
+            "post" => 1,
+            "uri"  => "/direct_messages/new",
+            "args" => {
+                "user" => 1,
+                "text" => 1,
+            },
+        },
+        "destroy_direct_message" => {
+            "post" => 1,
+            "uri"  => "/direct_messages/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "create_friend" => {
+            "post" => 1,
+            "uri"  => "/friendships/create/ID",
+            "args" => {
+                "id"     => 1,
+                "follow" => 0,
+            },
+        },
+        "destroy_friend" => {
+            "post" => 1,
+            "uri"  => "/friendships/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "relationship_exists" => {
+            "post" => 0,
+            "uri"  => "/friendships/exists",
+            "args" => {
+                "user_a" => 1,
+                "user_b" => 1,
+            },
+        },
+        "verify_credentials" => {
+            "post" => 0,
+            "uri"  => "/account/verify_credentials",
+            "args" => {},
+        },
+        "end_session" => {
+            "post" => 1,
+            "uri"  => "/account/end_session",
+            "args" => {},
+        },
+        "update_profile_colors" => {
+            "post" => 1,
+            "uri"  => "/account/update_profile_colors",
+            "args" => {
+                "profile_background_color"     => 1,
+                "profile_text_color"           => 1,
+                "profile_link_color"           => 1,
+                "profile_sidebar_fill_color"   => 1,
+                "profile_sidebar_border_color" => 1,
+            },
+        },
+        "update_profile_image" => {
+            "post" => 1,
+            "uri"  => "/account/update_profile_image",
+            "args" => { "image" => 1, },
+        },
+        "update_profile_background_image" => {
+            "post" => 1,
+            "uri"  => "/account/update_profile_background_image",
+            "args" => { "image" => 1, },
+        },
+        "update_delivery_device" => {
+            "post" => 1,
+            "uri"  => "/account/update_delivery_device",
+            "args" => { "device" => 1, },
+        },
+        "rate_limit_status" => {
+            "post" => 0,
+            "uri"  => "/account/rate_limit_status",
+            "args" => {},
+        },
+        "favorites" => {
+            "post" => 0,
+            "uri"  => "/favorites",
+            "args" => {
+                "id"   => 0,
+                "page" => 0,
+            },
+        },
+        "create_favorite" => {
+            "post" => 1,
+            "uri"  => "/favorites/create/ID",
+            "args" => { "id" => 1, },
+        },
+        "destroy_favorite" => {
+            "post" => 1,
+            "uri"  => "/favorites/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "enable_notifications" => {
+            "post" => 1,
+            "uri"  => "/notifications/follow/ID",
+            "args" => { "id" => 1, },
+        },
+        "disable_notifications" => {
+            "post" => 1,
+            "uri"  => "/notifications/leave/ID",
+            "args" => { "id" => 1, },
+        },
+        "create_block" => {
+            "post" => 1,
+            "uri"  => "/blocks/create/ID",
+            "args" => { "id" => 1, },
+        },
+        "destroy_block" => {
+            "post" => 1,
+            "uri"  => "/blocks/destroy/ID",
+            "args" => { "id" => 1, },
+        },
+        "test" => {
+            "post" => 0,
+            "uri"  => "/help/test",
+            "args" => {},
+        },
+        "downtime_schedule" => {
+            "post" => 0,
+            "uri"  => "/help/downtime_schedule",
+            "args" => {},
+        },
+    );
 
 ### Have to turn strict refs off in order to insert subrefs by value.
-   no strict "refs";
+    no strict "refs";
 
 ### For each method name in %apicalls insert a stub method to handle request.
 
-   foreach my $methodname ( keys %apicalls ) {
+    foreach my $methodname ( keys %apicalls ) {
 
-      *{$methodname} = sub {
-         my $self = shift;
-         my $args = shift;
-         $args = { only => $args } unless ref($args);
+        *{$methodname} = sub {
+            my $self = shift;
+            my $args = shift;
 
-         my $whoami;
-         my $url       = $self->{apiurl};
-         my $finalargs = {};
-         my $seen_id   = 0;
+            $args = { only => $args } unless ref($args);
 
-         ### Store the method name, since a sub doesn't know it's name without
-         ### a bit of work and more dependancies than are really prudent.
-         eval { $whoami = $methodname };
+            my $whoami;
+            my $url = $self->{apiurl};
+            my $finalargs;
+            my $seen_id = 0;
 
-         ### Get this method's definition from the table
-         my $method_def = $apicalls{$whoami};
+            ### Store the method name, since a sub doesn't know it's name without
+            ### a bit of work and more dependancies than are really prudent.
+            eval { $whoami = $methodname };
 
-         ### Create the URL. If it ends in /ID it needs the id param substituted
-         ### into the URL and not as an arg.
-         if ( $method_def->{uri} =~ s|/ID|| ) {
-            if ( defined $args->{id} ) {
-               $url .= $method_def->{uri} . "/" . delete( $args->{id} ) . ".json";
-               $seen_id++;
+            ### Handle source arg for update method.
+
+            if ( $whoami eq "update" ) {
+                $args->{source} = $self->{source};
+            }
+
+            ### Get this method's definition from the table
+            my $method_def = $apicalls{$whoami};
+
+            ### Create the URL. If it ends in /ID it needs the id param substituted
+            ### into the URL and not as an arg.
+            if ( $method_def->{uri} =~ s|/ID|| ) {
+                if ( defined $args->{id} ) {
+                    $url .= $method_def->{uri} . "/" . delete( $args->{id} ) . ".json";
+                    $seen_id++;
+                } else if ( $whoami eq "show_user" ) {
+
+                    ### show_user requires either id or email, this workaround checks that email is
+                    ### passed if id is not.
+
+                    if ( defined $args->{email} ) {
+                        $url .= $method_def->{uri} . "/" . delete( $args->{email} ) . ".json";
+                        $seen_id++;
+                    } else {
+                        warn "Either id or email is required by show_user, discarding request.";
+                        $self->{response_error} = {
+                            "request" => $method_def->{uri},
+                            "error"   => "Either id or email is required by show_user, discarding request.";
+                        };
+                        return undef;
+                    }
+                } else {
+
+                    ### No id field is found but may be optional. If so, skip id in the URL and just
+                    ### tack on .json, otherwise warn and return undef
+
+                    if ( $method_def->{args}->{id} ) {
+                        warn "The field id is required and not specified";
+                        $self->{response_error} = {
+                            "request" => $method_def->{uri},
+                            "error"   => "The field id is required and not specified"
+                        };
+                        return undef;
+                    } else {
+                        $url .= $method_def->{uri} . ".json";
+                    }
+                }
             } else {
-               if ( $method_def->{args}->{id} ) {
-                  warn "The field id is required and not specified";
-                  $self->{response_error} = {
-                     "request" => $method_def->{uri},
-                     "error"   => "The field id is required and not specified"
-                  };
-                  return undef;
-               } else {
-                  $url .= $method_def->{uri} . ".json";
-               }
+                $url .= $method_def->{uri} . ".json";
             }
-         } else {
-            $url .= $method_def->{uri} . ".json";
-         }
 
-         ### Validate args
+            ### Validate args
 
-         foreach my $argname ( sort keys %{ $method_def->{args} } ) {
-			if (($argname eq "id") and ($seen_id)) {
-				next;
-			}
-            if ( !$self->{skip_arg_validation} ) {
-               if (   ( $method_def->{args}->{$argname} )
-                  and ( !defined $args->{$argname} ) )
-               {
-                  if ( $self->{die_on_validation} ) {
-                     die "The field $argname is required and not specified. Terminating.";
-                  } else {
-                     warn "The field $argname is required and not specified, discarding request.";
-                     $self->{response_error} = {
-                        "request" => $url,
-                        "error"   => "The field $argname is required and not specified"
-                     };
-                  }
-                  return undef;
-               }
+            foreach my $argname ( sort keys %{ $method_def->{args} } ) {
+                if ( ( $argname eq "id" ) and ($seen_id) ) {
+                    next;
+                }
+                if ( !$self->{skip_arg_validation} ) {
+                    if (    ( $method_def->{args}->{$argname} )
+                        and ( !defined $args->{$argname} ) )
+                    {
+                        if ( $self->{die_on_validation} ) {
+                            die "The field $argname is required and not specified. Terminating.";
+                        } else {
+                            warn "The field $argname is required and not specified, discarding request.";
+                            $self->{response_error} = {
+                                "request" => $url,
+                                "error"   => "The field $argname is required and not specified"
+                            };
+                        }
+                        return undef;
+                    }
+
+                }
 
             }
 
-         }
+            ### Create safe arg hashref
 
-         ### Create safe arg hashref
-
-         foreach my $argname ( sort keys %{$args} ) {
-            if ( ( !defined $method_def->{args}->{$argname} ) and ( ! $self->{allow_undefined_args} ) ) {
-               warn "The field $argname is unknown and will not be passed";
+            foreach my $argname ( sort keys %{$args} ) {
+                if ( ( !defined $method_def->{args}->{$argname} ) and ( !$self->{allow_undefined_args} ) ) {
+                    warn "The field $argname is unknown and will not be passed";
+                } else {
+                    if ( $method_def->{post} ) {
+                        $finalargs->{$argname} = $args->{$argname};
+                    } else {
+                        if ( !$finalargs ) {
+                            $finalargs .= "?";
+                        }
+                        $finalargs .= "&" unless $finalargs eq "?";
+                        $finalargs .= $argname . "=" . uri_escape( $args->{$argname} );
+                    }
+                }
+            }
+            ### Send the LWP request
+            my $req;
+            if ( $method_def->{post} ) {
+                $req = $self->{ua}->post( $url, $finalargs );
             } else {
-               $finalargs->{$argname} = $args->{$argname};
+                $req = $self->{ua}->get( $url . $finalargs );
             }
-         }
 
-         ### Send the LWP request
-		 ### Just print for now while we verify it works.
-         if ( $method_def->{post} ) {
-            print "POST - $url\n";
-            print Dumper $finalargs;
-         } else {
-            print "GET - $url\n";
-            print Dumper $finalargs;
-         }
+            $self->{response_code}    = $req->code;
+            $self->{response_message} = $req->message;
 
-        }
-   }
+            if ( $whoami eq "relationship_exists" ) {
+				### This is a hack for relationship_exists which currently suffers from twitter breakage
+				### because what they return breaks some JSON decoders. Have to manually parse the 
+				### results and return a boolean. Twitter says they are going to fix their end and this
+				### will go away.
+				
+                return unless $req->is_success;
+                return $req->content =~ /true/ ? 1 : 0;
+            } else {
+                $self->{response_error} = JSON::Any->jsonToObj( $req->content );
+                return ( $req->is_success ) ? $self->{response_error} : undef;
+            }
+          }
+    }
 }
 
 1;
