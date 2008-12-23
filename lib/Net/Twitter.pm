@@ -386,7 +386,7 @@ BEGIN {
                 if ( defined $args->{id} ) {
                     $url .= $method_def->{uri} . "/" . delete( $args->{id} ) . ".json";
                     $seen_id++;
-                } else if ( $whoami eq "show_user" ) {
+                } elsif ( $whoami eq "show_user" ) {
 
                     ### show_user requires either id or email, this workaround checks that email is
                     ### passed if id is not.
@@ -398,7 +398,7 @@ BEGIN {
                         warn "Either id or email is required by show_user, discarding request.";
                         $self->{response_error} = {
                             "request" => $method_def->{uri},
-                            "error"   => "Either id or email is required by show_user, discarding request.";
+                            "error"   => "Either id or email is required by show_user, discarding request.",
                         };
                         return undef;
                     }
@@ -411,7 +411,7 @@ BEGIN {
                         warn "The field id is required and not specified";
                         $self->{response_error} = {
                             "request" => $method_def->{uri},
-                            "error"   => "The field id is required and not specified"
+                            "error"   => "The field id is required and not specified",
                         };
                         return undef;
                     } else {
