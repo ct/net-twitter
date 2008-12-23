@@ -360,7 +360,16 @@ BEGIN {
             my $self = shift;
             my $args = shift;
 
-            $args = { only => $args } unless ref($args);
+            if ( !ref($args) ) {
+                my $single_arg;
+                if ( $whoami eq "update" ) {
+                    $single_arg = "status";
+                } elsif ( $whoami eq "replies" ) {
+                    $single_arg = "page";
+                } elsif ( $whoami =~ m/friends|show_user|create_friend/ ) {
+                    $single_arg = "id";
+                }
+            }
 
             my $whoami;
             my $url = $self->{apiurl};
