@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 1.21
+    This document describes Net::Twitter version 2.00_01
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -11,11 +11,11 @@ SYNOPSIS
 
        my $twit = Net::Twitter->new(username=>"myuser", password=>"mypass" );
 
-       $result = $twit->update("My current Status");
+       $result = $twit->update(status => "My current Status");
 
        $twit->credentials("otheruser", "otherpass");
 
-       $result = $twit->update("Status for otheruser");
+       $result = $twit->update(status => "Status for otheruser");
 
 DESCRIPTION
     http://www.twitter.com provides a web 2.0 type of ubiquitous presence.
@@ -45,7 +45,7 @@ DESCRIPTION
             "Net::Twitter/$Net::Twitter::Version (Perl)"
 
         "useragent_class"
-            OPTIONAL: A LWP::UserAgent compatible class, e.g.,
+            OPTIONAL: An LWP::UserAgent compatible class, e.g.,
             LWP::UserAgent::POE. If omitted, this will default to
             LWP::UserAgent.
 
@@ -61,9 +61,8 @@ DESCRIPTION
             timeline.
 
             Twitter claims that specifying a nonexistant code will cause the
-            system to default to "from web". Some testing with invalid
-            source codes has caused certain requests to fail, returning
-            undef. If you don't have a code from twitter, don't set one.
+            system to default to "from web". If you don't have a code from
+            twitter, don't set one.
 
         "clientname"
             OPTIONAL: Sets the X-Twitter-Client-Name: HTTP Header. If
@@ -94,6 +93,12 @@ DESCRIPTION
 
             "apirealm" defaults to "Twitter API".
 
+        "identica"
+            OPTIONAL: Passing a true value for identica to new() will preset
+            values for "apiurl", "apirealm" and "apihost" which will point
+            at the http://identi.ca twitter compatible API. This API does
+            not implement 100% of the twitter API.
+
         "twittervision"
             OPTIONAL: If the "twittervision" argument is passed with a true
             value, the module will enable use of the
@@ -102,18 +107,42 @@ DESCRIPTION
             hashref. Also, the "update_twittervision" method will allow
             setting of the current location.
 
+        "skip_arg_validation"
+            OPTIONAL: Beginning in 2.00, Net::Twitter will validate
+            arguments passed to the various API methods, flagging required
+            args that were not passed, and discarding args passed that do
+            not exist in the API specification. Passing a boolean True for
+            skip_arg_validation into new() will skip this validation process
+            entirely and allow requests to proceed regardless of the args
+            passed. This defaults to false.
+
+        "die_on_validation"
+            OPTIONAL: In the event that the arguments passed to a method do
+            not pass the validation process listed above, the default action
+            will be to warn the user, make the error readable through the
+            get_error method listed below, and to return undef to the
+            caller. Passing a boolean true value for die_on_validation to
+            new() will change this behavior to simply executing a die() with
+            the appropriate error message. This defaults to false.
+
     "credentials($username, $password, $apihost, $apiurl)"
         Change the credentials for logging into twitter. This is helpful
         when managing multiple accounts.
 
         "apirealm" and "apihost" are optional and will default to the
-        standard twitter versions if omitted.
+        existing settings if omitted.
 
-        "http_code"
-            Returns the HTTP response code of the most recent request.
+    "http_code"
+        Returns the HTTP response code of the most recent request.
 
-        "http_message"
-            Returns the HTTP response message of the most recent request.
+    "http_message"
+        Returns the HTTP response message of the most recent request.
+
+    "get_error"
+        If the last request returned an error, the hashref containing the
+        error message can be retrieved with "get_error". This will provide
+        some additional debugging information in addition to the http code
+        and message above.
 
   STATUS METHODS
     "update(...)"
@@ -536,74 +565,18 @@ DESCRIPTION
         Returns the same text displayed on <http://twitter.com/home> when a
         maintenance window is scheduled, in the requested format.
 
-CONFIGURATION AND ENVIRONMENT
     Net::Twitter uses LWP internally. Any environment variables that LWP
     supports should be supported by Net::Twitter. I hope.
 
 DEPENDENCIES
     LWP::UserAgent
+    URI::Escape
     JSON::Any
-        Starting with version 1.04, Net::Twitter requires JSON::Any instead
-        of a specific JSON handler module. Net::Twitter currently accepts
-        JSON::Any's default order for loading handlers.
-
-HTTP RESPONSE CODES
-    The Twitter API attempts to return appropriate HTTP status codes for
-    every request.
-
-    200 OK: everything went awesome.
-    304 Not Modified: there was no new data to return.
-    400 Bad Request: your request is invalid, and we'll return an error
-    message that tells you why. This is the status code returned if you've
-    exceeded the rate limit (see below).
-    401 Not Authorized: either you need to provide authentication
-    credentials, or the credentials provided aren't valid.
-    403 Forbidden: we understand your request, but are refusing to fulfill
-    it. An accompanying error message should explain why.
-    404 Not Found: either you're requesting an invalid URI or the resource
-    in question doesn't exist (ex: no such user).
-    500 Internal Server Error: we did something wrong. Please post to the
-    group about it and the Twitter team will investigate.
-    502 Bad Gateway: returned if Twitter is down or being upgraded.
-    503 Service Unavailable: the Twitter servers are up, but are overloaded
-    with requests. Try again later.
-
-    You can view the HTTP code and message returned after each request with
-    the "http_code" and "http_message" functions.
-
-TWITTER SOURCES
-    All tweets are set with a source, so that setting your status from the
-    web interface would display as "from web", and through an instant
-    messenger would show "from im".
-
-    It is possible to request a source entry from Twitter which will allow
-    your tweets to show as "from YourWidget".
-
-    Beginning in Net::Twitter 1.07 you may set this source by passing the
-    "source" parameter to the "new" constructor. See above.
-
-    Because of this, all statuses set through Net::Twitter 1.07 and above
-    will now show as "from Perl Net::Twitter" instead of "from web".
-
-    For more information, see "How do I get "from [my_application]" appended
-    to updates sent from my API application?" at:
-
-    <http://groups.google.com/group/twitter-development-talk/web/api-documen
-    tation>
-
-TWITTER TERMINOLOGY CHANGES
-  1.12 through 1.18
-    As of July 19th, 2007, the Twitter team has implemented a change in the
-    terminology used for friends and followers to alleviate confusion.
-
-    Beginning in Net::Twitter 1.12 the methods were renamed, with the old
-    ones listed as DEPRECATED. Beginning with 1.19 these methods have been
-    removed.
 
 BUGS AND LIMITATIONS
     Please report any bugs or feature requests to
     "bug-net-twitter@rt.cpan.org", or through the web interface at
-    <http://rt.cpan.org>.
+    <hhttps://rt.cpan.org/Dist/Display.html?Queue=Net-Twitter>.
 
 AUTHOR
     Chris Thompson <cpan@cthompson.com>
@@ -639,4 +612,12 @@ DISCLAIMER OF WARRANTY
     FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
     SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
     DAMAGES.
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 1247:
+        =back doesn't take any parameters, but you said =back =head1
+        CONFIGURATION AND ENVIRONMENT
 
