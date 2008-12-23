@@ -369,9 +369,9 @@ BEGIN {
             ### a bit of work and more dependancies than are really prudent.
             eval { $whoami = $methodname };
 
-			### For backwards compatibility we need to handle the user handing a single, scalar
-			### arg in, instead of a hashref. Since the methods that allowed this in 1.xx have
-			### different defaults, use a bit of logic to stick the value in the right place.
+            ### For backwards compatibility we need to handle the user handing a single, scalar
+            ### arg in, instead of a hashref. Since the methods that allowed this in 1.xx have
+            ### different defaults, use a bit of logic to stick the value in the right place.
 
             if ( !ref($args) ) {
                 my $single_arg;
@@ -382,7 +382,7 @@ BEGIN {
                 } elsif ( $whoami =~ m/friends|show_user|create_friend/ ) {
                     $single_arg = "id";
                 }
-				$args = { $single_arg => $args };
+                $args = { $single_arg => $args };
             }
 
             ### Handle source arg for update method.
