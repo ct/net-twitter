@@ -1,7 +1,7 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
 # v1.23
-# Copyright (c) 2008 Chris Thompson
+# Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
@@ -1497,7 +1497,7 @@ ups to Chris "perigrin" Prather for that.
        
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2008, Chris Thompson <cpan@cthompson.com>. All rights
+Copyright (c) 2009, Chris Thompson <cpan@cthompson.com>. All rights
 reserved.
 
 This module is free software; you can redistribute it and/or
