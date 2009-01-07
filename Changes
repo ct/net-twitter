@@ -4,7 +4,8 @@ Revision history for Net-Twitter
 	o Applied patch from Chris Nelson to trap error responses from LWP which
 		were causing JSON::Any to die. JSON errors should now just gracefully
 		return undef.
-
+	o Add IRC and github contact info
+	
 1.22 - Mon Dec 22, 2008
 	o Added get_error method for http://rt.cpan.org/Ticket/Display.html?id=41824
 	
