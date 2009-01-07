@@ -620,8 +620,15 @@ C<apirealm> defaults to C<Twitter API>.
 =item C<identica>
 
 OPTIONAL: Passing a true value for identica to new() will preset values for C<apiurl>, C<apirealm> and
-C<apihost> which will point at the http://identi.ca twitter compatible API. This API does not implement
-100% of the twitter API.
+C<apihost> which will point at the http://identi.ca twitter compatible API. 
+
+All methods in Net::Twitter work as documented, except where listed in the 
+identica/laconica documentation at:
+
+L<http://laconi.ca/trac/wiki/TwitterCompatibleAPI>
+
+For simplicity, you can also use L<Net::Identica> in your script instead of Net::Twitter, which
+will default to identica being set to true.
 
 =item C<twittervision>
 
