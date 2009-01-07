@@ -1,5 +1,12 @@
 Revision history for Net-Twitter
 
+2.00_02 - Wed Jan 23, 2009
+	o Applied http://github.com/semifor/net-twitter/commit/34b042f653d3c9c39f0003504070b4014da7d854
+	o Applied logic from patch to 1.xx by Chris Nelson to prevent bad JSON from 
+		causing JSON::Any to die. JSON errors should now gracefully return undef.
+	o POD change, spurious h in the URL for rt.cpan.org
+	o Updated copyright to 2009
+
 2.00_01 - Mon Dec 22, 2008
 	o From scratch redo. All the old code is gone and replaced with new.
 	o Changes against 1.xx include:
@@ -10,5 +17,5 @@ Revision history for Net-Twitter
 		
 For changes in the 1.xx series, please see:
 
-http://search.cpan.org/src/CTHOM/Net-Twitter-1.22/Changes
+http://search.cpan.org/src/CTHOM/Net-Twitter-1.23/Changes
 

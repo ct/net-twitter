@@ -468,6 +468,8 @@ BEGIN {
                 if ( ( !defined $method_def->{args}->{$argname} ) and ( !$self->{skip_arg_validation} ) ) {
                     warn "The field $argname is unknown and will not be passed";
                 } else {
+                    # drop arguments with undefined values (backcompat with v1.xx)
+                    next unless defined $args->{$argname};
                     if ( $method_def->{post} ) {
                         $finalargs->{$argname} = $args->{$argname};
                     } else {
@@ -499,8 +501,8 @@ BEGIN {
                 return unless $req->is_success;
                 return $req->content =~ /true/ ? 1 : 0;
             } else {
-                $self->{response_error} = JSON::Any->jsonToObj( $req->content );
-                return ( $req->is_success ) ? $self->{response_error} : undef;
+                $self->{response_error}   = $req->content;
+                return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;                
             }
           }
     }
@@ -1267,7 +1269,7 @@ supports should be supported by Net::Twitter. I hope.
 
 Please report any bugs or feature requests to
 C<bug-net-twitter@rt.cpan.org>, or through the web interface at
-L<hhttps://rt.cpan.org/Dist/Display.html?Queue=Net-Twitter>.
+L<https://rt.cpan.org/Dist/Display.html?Queue=Net-Twitter>.
 
 
 =head1 AUTHOR
@@ -1279,7 +1281,7 @@ ups to Chris "perigrin" Prather for that.
        
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2008, Chris Thompson <cpan@cthompson.com>. All rights
+Copyright (c) 2009, Chris Thompson <cpan@cthompson.com>. All rights
 reserved.
 
 This module is free software; you can redistribute it and/or
