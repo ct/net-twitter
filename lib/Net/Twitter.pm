@@ -203,7 +203,7 @@ BEGIN {
             "uri"  => "/users/show/ID",
             "args" => {
                 "id"    => 1,
-                "email" => 1,
+                "email" => 0,
             },
         },
         "direct_messages" => {
