@@ -53,10 +53,10 @@ This document describes Net::Identica version 2.00+03
 identi.ca is a microblogging site similar to twitter.com, and offers up a 
 twitter compatible API.
 
-This module wraps Net::Twitter, defaulting to the connection information 
+This module wraps L<Net::Twitter>, defaulting to the connection information 
 for identica instead of twitter.
 
-All other methods in Net::Twitter work as documented, except where listed in the 
+All other methods in L<Net::Twitter> work as documented, except where listed in the 
 identica/laconica documentation at:
 
 L<http://laconi.ca/trac/wiki/TwitterCompatibleAPI>
