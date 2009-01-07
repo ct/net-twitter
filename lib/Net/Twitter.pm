@@ -13,6 +13,7 @@ use URI::Escape;
 use JSON::Any;
 use LWP::UserAgent;
 use URI::Escape;
+use Data::Dumper;
 
 sub new {
     my $class = shift;
@@ -203,7 +204,7 @@ BEGIN {
             "uri"  => "/users/show/ID",
             "args" => {
                 "id"    => 1,
-                "email" => 0,
+                "email" => 1,
             },
         },
         "direct_messages" => {
@@ -404,11 +405,7 @@ BEGIN {
 
                     ### show_user requires either id or email, this workaround checks that email is
                     ### passed if id is not.
-
-                    if ( defined $args->{email} ) {
-                        $url .= $method_def->{uri} . "/" . delete( $args->{email} ) . ".json";
-                        $seen_id++;
-                    } else {
+                    if (! defined $args->{email} ) {
                         warn "Either id or email is required by show_user, discarding request.";
                         $self->{response_error} = {
                             "request" => $method_def->{uri},
@@ -439,6 +436,10 @@ BEGIN {
             ### Validate args
 
             foreach my $argname ( sort keys %{ $method_def->{args} } ) {
+                if ( $whoami eq "show_user") {
+                    ### We already validated the wonky args to show_user above.
+                    next;
+                }
                 if ( ( $argname eq "id" ) and ($seen_id) ) {
                     next;
                 }
@@ -473,6 +474,7 @@ BEGIN {
                     if ( $method_def->{post} ) {
                         $finalargs->{$argname} = $args->{$argname};
                     } else {
+                        $finalargs = "";
                         if ( !$finalargs ) {
                             $finalargs .= "?";
                         }
@@ -482,11 +484,15 @@ BEGIN {
                 }
             }
             ### Send the LWP request
+                        
             my $req;
             if ( $method_def->{post} ) {
                 $req = $self->{ua}->post( $url, $finalargs );
             } else {
-                $req = $self->{ua}->get( $url . $finalargs );
+                if ($finalargs) {
+                    $url .= $finalargs;
+                }
+                $req = $self->{ua}->get( $url );
             }
 
             $self->{response_code}    = $req->code;
