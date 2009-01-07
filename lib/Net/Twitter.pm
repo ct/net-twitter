@@ -1271,6 +1271,9 @@ Please report any bugs or feature requests to
 C<bug-net-twitter@rt.cpan.org>, or through the web interface at
 L<https://rt.cpan.org/Dist/Display.html?Queue=Net-Twitter>.
 
+You can also join the Net::Twitter IRC channel at irc://irc.perl.org/net-twitter
+
+You can track Net::Twitter development at http://github.com/ct/net-twitter/tree/2.0
 
 =head1 AUTHOR
 

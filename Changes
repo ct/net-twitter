@@ -6,6 +6,7 @@ Revision history for Net-Twitter
 		causing JSON::Any to die. JSON errors should now gracefully return undef.
 	o POD change, spurious h in the URL for rt.cpan.org
 	o Updated copyright to 2009
+	o Add IRC and other contact info.
 
 2.00_01 - Mon Dec 22, 2008
 	o From scratch redo. All the old code is gone and replaced with new.
