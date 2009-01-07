@@ -5,7 +5,7 @@
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "1.23";
+$VERSION = "1.24";
 use warnings;
 use strict;
 
@@ -684,7 +684,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 1.23
+This document describes Net::Twitter version 1.24
 
 =head1 SYNOPSIS
 
