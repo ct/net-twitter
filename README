@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.00_01
+    This document describes Net::Twitter version 2.00_03
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -96,8 +96,16 @@ DESCRIPTION
         "identica"
             OPTIONAL: Passing a true value for identica to new() will preset
             values for "apiurl", "apirealm" and "apihost" which will point
-            at the http://identi.ca twitter compatible API. This API does
-            not implement 100% of the twitter API.
+            at the http://identi.ca twitter compatible API.
+
+            All methods in Net::Twitter work as documented, except where
+            listed in the identica/laconica documentation at:
+
+            <http://laconi.ca/trac/wiki/TwitterCompatibleAPI>
+
+            For simplicity, you can also use Net::Identica in your script
+            instead of Net::Twitter, which will default to identica being
+            set to true.
 
         "twittervision"
             OPTIONAL: If the "twittervision" argument is passed with a true
@@ -556,6 +564,77 @@ DESCRIPTION
         authenticating user. Returns the un-blocked user in the requested
         format when successful.
 
+  SEARCH
+    As of version 2.00, Net::Twitter now implements the search functionality
+    of Twitter, using code derived from Net::Twitter::Search by Brenda
+    Wallace.
+
+    "search()"
+        Performs a search on http://search.twitter.com for your query
+        string, returning a hashref full of posts, in the same manner as the
+        *_timeline methods, but does not include the "user" item with the
+        posting user's information.
+
+        This method takes a hashref as an argument:
+
+        "q"
+        "query"
+            REQUIRED: Specifies the string to search for. This can include
+            any of the Twitter search operators listed at
+            <http://search.twitter.com/operators>. Please see below for
+            information about backwards compatibility with
+            Net::Twitter::Search.
+
+            Both q and query are aliases to the same argument. Specifying
+            both will use the value specified for "query".
+
+            Please note that you cannot use the "near" search operator to
+            specify arbitrary Lat/Long locations. For this use the "geocode"
+            argument below.
+
+        "lang"
+            OPTIONAL: Restricts results to a specific language, given by an
+            ISO 639-1 code. For example {'lang' => 'en'}
+
+        "rpp"
+            OPTIONAL: Sets the number of posts to return per page, up to a
+            max of 100.
+
+        "page"
+            OPTIONAL: Sets the page number (starting at 1) to return, up to
+            a max of roughly 1500 results (based on rpp * page)
+
+        "since_id"
+            OPTIONAL: Restricts returned posts to those status ids greater
+            than the given id.
+
+        "geocode"
+            Returns posts by users located within the radius of the given
+            latitude/longitude, where the user's location is taken from
+            their Twitter profile. The format of the parameter value is
+            "latitide,longitude,radius", with radius units specified as
+            either "mi" (miles) or "km" (kilometers).
+
+        "show_user"
+            OPTIONAL: When set to a true boolean value "show_user" will
+            prepend "<username>:" to the beginning of the text of each post
+            returned.
+
+   BACKWARDS COMPATIBILITY WITH Net::Twitter::Search
+    In order to maintain backwards compatibility with Net::Twitter::Search,
+    the query/q arguments can be specified as plain text:
+
+        $res = $twit->search("Farkle McFancypants")
+
+    In addition, you can, in this case, specify all of the above arguments
+    in a hashref as the second argument to the search method.
+
+        $res = $twit->search("Farkle McFancypants", {lang => "en"})
+
+    Placing a query/q argument in the hashref passed in this manner will be
+    ignored, and the module will proceed using the string passed in the
+    first argument as the query.
+
   HELP METHODS
     "test()"
         Returns the string "ok" in the requested format with a 200 OK HTTP
@@ -565,6 +644,7 @@ DESCRIPTION
         Returns the same text displayed on <http://twitter.com/home> when a
         maintenance window is scheduled, in the requested format.
 
+CONFIGURATION AND ENVIRONMENT
     Net::Twitter uses LWP internally. Any environment variables that LWP
     supports should be supported by Net::Twitter. I hope.
 
@@ -576,7 +656,13 @@ DEPENDENCIES
 BUGS AND LIMITATIONS
     Please report any bugs or feature requests to
     "bug-net-twitter@rt.cpan.org", or through the web interface at
-    <hhttps://rt.cpan.org/Dist/Display.html?Queue=Net-Twitter>.
+    <https://rt.cpan.org/Dist/Display.html?Queue=Net-Twitter>.
+
+    You can also join the Net::Twitter IRC channel at
+    irc://irc.perl.org/net-twitter
+
+    You can track Net::Twitter development at
+    http://github.com/ct/net-twitter/tree/2.0
 
 AUTHOR
     Chris Thompson <cpan@cthompson.com>
@@ -585,7 +671,7 @@ AUTHOR
     ups to Chris "perigrin" Prather for that.
 
 LICENCE AND COPYRIGHT
-    Copyright (c) 2008, Chris Thompson <cpan@cthompson.com>. All rights
+    Copyright (c) 2009, Chris Thompson <cpan@cthompson.com>. All rights
     reserved.
 
     This module is free software; you can redistribute it and/or modify it
@@ -617,7 +703,9 @@ POD ERRORS
     Hey! The above document had some coding errors, which are explained
     below:
 
-    Around line 1247:
-        =back doesn't take any parameters, but you said =back =head1
-        CONFIGURATION AND ENVIRONMENT
+    Around line 1376:
+        You forgot a '=back' before '=head3'
+
+    Around line 1391:
+        =back without =over
 
