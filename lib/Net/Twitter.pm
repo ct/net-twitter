@@ -13,7 +13,6 @@ use URI::Escape;
 use JSON::Any;
 use LWP::UserAgent;
 use URI::Escape;
-use Data::Dumper;
 
 sub new {
     my $class = shift;
@@ -133,6 +132,7 @@ sub search {
     my $args      = shift;
     my $finalargs = "";
     my $url       = $self->{searchapiurl} . "?";
+    my $retval;
 
     ### Return if no args specified.
     if ( !defined($args) ) {
@@ -186,8 +186,23 @@ sub search {
     $self->{response_code}    = $req->code;
     $self->{response_message} = $req->message;
     $self->{response_error}   = $req->content;
-    return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;
 
+    undef $retval;
+
+    if ( $req->is_success ) {
+        $retval = eval { JSON::Any->jsonToObj( $req->content ) };
+
+        ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+        ### which would cause it to die. This way it simply assigns undef to $retval
+        ### If this happens, response_code, response_message and response_error aren't going to
+        ### have any indication what's wrong, so we prepend a statement to request_error.
+
+        if ( !defined $retval ) {
+            $self->{response_error} =
+              "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+        }
+    }
+    return $retval;
 }
 
 ### Load method data into %apicalls at runtime.
@@ -1314,8 +1329,7 @@ user. Returns the un-blocked user in the requested format when successful.
  
 =head2 SEARCH
 
-As of version 2.00, Net::Twitter now implements the search functionality of Twitter,
-using code derived from Net::Twitter::Search by Brenda Wallace.
+As of version 2.00, Net::Twitter now implements the search functionality of Twitter.
 
 =over
 
