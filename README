@@ -566,8 +566,7 @@ DESCRIPTION
 
   SEARCH
     As of version 2.00, Net::Twitter now implements the search functionality
-    of Twitter, using code derived from Net::Twitter::Search by Brenda
-    Wallace.
+    of Twitter.
 
     "search()"
         Performs a search on http://search.twitter.com for your query
@@ -620,20 +619,21 @@ DESCRIPTION
             prepend "<username>:" to the beginning of the text of each post
             returned.
 
-   BACKWARDS COMPATIBILITY WITH Net::Twitter::Search
-    In order to maintain backwards compatibility with Net::Twitter::Search,
-    the query/q arguments can be specified as plain text:
+    BACKWARDS COMPATIBILITY WITH Net::Twitter::Search
+        In order to maintain backwards compatibility with
+        Net::Twitter::Search, the query/q arguments can be specified as
+        plain text:
 
-        $res = $twit->search("Farkle McFancypants")
+            $res = $twit->search("Farkle McFancypants")
 
-    In addition, you can, in this case, specify all of the above arguments
-    in a hashref as the second argument to the search method.
+        In addition, you can, in this case, specify all of the above
+        arguments in a hashref as the second argument to the search method.
 
-        $res = $twit->search("Farkle McFancypants", {lang => "en"})
+            $res = $twit->search("Farkle McFancypants", {lang => "en"})
 
-    Placing a query/q argument in the hashref passed in this manner will be
-    ignored, and the module will proceed using the string passed in the
-    first argument as the query.
+        Any query/q arguments in the hashref passed in this manner will be
+        ignored, and the module will proceed using the string passed in the
+        first argument as the query.
 
   HELP METHODS
     "test()"
@@ -698,14 +698,4 @@ DISCLAIMER OF WARRANTY
     FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
     SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
     DAMAGES.
-
-POD ERRORS
-    Hey! The above document had some coding errors, which are explained
-    below:
-
-    Around line 1376:
-        You forgot a '=back' before '=head3'
-
-    Around line 1391:
-        =back without =over
 

@@ -1,6 +1,13 @@
 Revision history for Net-Twitter
 
-2.00_02 - Wed Jan 23, 2009
+2.00_03 - Fri Jan 9, 2009
+	o Add Net::Identica which wraps a Net::Twitter object and sets the default connection to identi.ca
+	o Fix show_user argument handling which was broken to this point
+	o Add full search API
+	o Trap errors in JSON decoding when Twitter returns a 200 Success, preventing JSON::Any from die-ing
+	o Various POD fixes and updates
+	
+2.00_02 - Wed Jan 7, 2009
 	o Applied http://github.com/semifor/net-twitter/commit/34b042f653d3c9c39f0003504070b4014da7d854
 	o Applied logic from patch to 1.xx by Chris Nelson to prevent bad JSON from 
 		causing JSON::Any to die. JSON errors should now gracefully return undef.
