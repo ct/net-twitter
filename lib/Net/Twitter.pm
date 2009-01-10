@@ -579,18 +579,8 @@ BEGIN {
             $self->{response_code}    = $req->code;
             $self->{response_message} = $req->message;
 
-            if ( $whoami eq "relationship_exists" ) {
-                ### This is a hack for relationship_exists which currently suffers from twitter breakage
-                ### because what they return breaks some JSON decoders. Have to manually parse the
-                ### results and return a boolean. Twitter says they are going to fix their end and this
-                ### will go away.
-
-                return unless $req->is_success;
-                return $req->content =~ /true/ ? 1 : 0;
-            } else {
-                $self->{response_error} = $req->content;
-                return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;
-            }
+            $self->{response_error} = $req->content;
+            return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;
           }
     }
 }
