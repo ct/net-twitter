@@ -1387,7 +1387,8 @@ each post returned.
 
 =back 
 
-=head3 BACKWARDS COMPATIBILITY WITH Net::Twitter::Search
+
+=item BACKWARDS COMPATIBILITY WITH Net::Twitter::Search
 
 In order to maintain backwards compatibility with Net::Twitter::Search, the query/q arguments can be specified
 as plain text:
