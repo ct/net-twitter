@@ -460,8 +460,10 @@ BEGIN {
                     $single_arg = "status";
                 } elsif ( $whoami eq "replies" ) {
                     $single_arg = "page";
-                } elsif ( $whoami =~ m/friends|show_user|create_friend/ ) {
+                } elsif ( $whoami =~ m/friends\b|show_user|create_friend/ ) {
                     $single_arg = "id";
+                } else {
+                    $single_arg = $args;
                 }
                 $args = { $single_arg => $args };
             }
