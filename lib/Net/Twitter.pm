@@ -209,14 +209,16 @@ sub search {
 BEGIN {
     my %apicalls = (
         "public_timeline" => {
-            "post" => 0,
-            "uri"  => "/statuses/public_timeline",
-            "args" => {},
+            "blankargs" => 0,
+            "post"      => 0,
+            "uri"       => "/statuses/public_timeline",
+            "args"      => {},
         },
         "friends_timeline" => {
-            "post" => 0,
-            "uri"  => "/statuses/friends_timeline",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/statuses/friends_timeline",
+            "args"      => {
                 "since"    => 0,
                 "since_id" => 0,
                 "count"    => 0,
@@ -224,9 +226,10 @@ BEGIN {
             },
         },
         "user_timeline" => {
-            "post" => 0,
-            "uri"  => "/statuses/user_timeline/ID",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/statuses/user_timeline/ID",
+            "args"      => {
                 "id"       => 0,
                 "since"    => 0,
                 "since_id" => 0,
@@ -235,198 +238,228 @@ BEGIN {
             },
         },
         "show_status" => {
-            "post" => 0,
-            "uri"  => "/statuses/show/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 0,
+            "uri"       => "/statuses/show/ID",
+            "args"      => { "id" => 1, },
         },
         "update" => {
-            "post" => 1,
-            "uri"  => "/statuses/update",
-            "args" => {
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/statuses/update",
+            "args"      => {
                 "status"                => 1,
                 "in_reply_to_status_id" => 0,
                 "source"                => 0,
             },
         },
         "replies" => {
-            "post" => 0,
-            "uri"  => "/statuses/replies",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/statuses/replies",
+            "args"      => {
                 "page"     => 0,
                 "since"    => 0,
                 "since_id" => 0,
             },
         },
         "destroy_status" => {
-            "post" => 1,
-            "uri"  => "/statuses/destroy/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/statuses/destroy/ID",
+            "args"      => { "id" => 1, },
         },
         "friends" => {
-            "post" => 0,
-            "uri"  => "/statuses/friends/ID",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/statuses/friends/ID",
+            "args"      => {
                 "id"    => 0,
                 "page"  => 0,
                 "since" => 0,
             },
         },
         "followers" => {
-            "post" => 0,
-            "uri"  => "/statuses/followers",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/statuses/followers",
+            "args"      => {
                 "id"   => 0,
                 "page" => 0,
             },
         },
         "show_user" => {
-            "post" => 0,
-            "uri"  => "/users/show/ID",
-            "args" => {
+            "blankargs" => 0,
+            "post"      => 0,
+            "uri"       => "/users/show/ID",
+            "args"      => {
                 "id"    => 1,
                 "email" => 1,
             },
         },
         "direct_messages" => {
-            "post" => 0,
-            "uri"  => "/direct_messages",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/direct_messages",
+            "args"      => {
                 "since"    => 0,
                 "since_id" => 0,
                 "page"     => 0,
             },
         },
         "sent_direct_messages" => {
-            "post" => 0,
-            "uri"  => "/direct_messages/sent",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/direct_messages/sent",
+            "args"      => {
                 "since"    => 0,
                 "since_id" => 0,
                 "page"     => 0,
             },
         },
         "new_direct_message" => {
-            "post" => 1,
-            "uri"  => "/direct_messages/new",
-            "args" => {
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/direct_messages/new",
+            "args"      => {
                 "user" => 1,
                 "text" => 1,
             },
         },
         "destroy_direct_message" => {
-            "post" => 1,
-            "uri"  => "/direct_messages/destroy/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/direct_messages/destroy/ID",
+            "args"      => { "id" => 1, },
         },
         "create_friend" => {
-            "post" => 1,
-            "uri"  => "/friendships/create/ID",
-            "args" => {
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/friendships/create/ID",
+            "args"      => {
                 "id"     => 1,
                 "follow" => 0,
             },
         },
         "destroy_friend" => {
-            "post" => 1,
-            "uri"  => "/friendships/destroy/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/friendships/destroy/ID",
+            "args"      => { "id" => 1, },
         },
         "relationship_exists" => {
-            "post" => 0,
-            "uri"  => "/friendships/exists",
-            "args" => {
+            "blankargs" => 0,
+            "post"      => 0,
+            "uri"       => "/friendships/exists",
+            "args"      => {
                 "user_a" => 1,
                 "user_b" => 1,
             },
         },
         "verify_credentials" => {
-            "post" => 0,
-            "uri"  => "/account/verify_credentials",
-            "args" => {},
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/account/verify_credentials",
+            "args"      => {},
         },
         "end_session" => {
-            "post" => 1,
-            "uri"  => "/account/end_session",
-            "args" => {},
+            "blankargs" => 1,
+            "post"      => 1,
+            "uri"       => "/account/end_session",
+            "args"      => {},
         },
         "update_profile_colors" => {
-            "post" => 1,
-            "uri"  => "/account/update_profile_colors",
-            "args" => {
-                "profile_background_color"     => 1,
-                "profile_text_color"           => 1,
-                "profile_link_color"           => 1,
-                "profile_sidebar_fill_color"   => 1,
-                "profile_sidebar_border_color" => 1,
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/account/update_profile_colors",
+            "args"      => {
+                "profile_background_color"     => 0,
+                "profile_text_color"           => 0,
+                "profile_link_color"           => 0,
+                "profile_sidebar_fill_color"   => 0,
+                "profile_sidebar_border_color" => 0,
             },
         },
         "update_profile_image" => {
-            "post" => 1,
-            "uri"  => "/account/update_profile_image",
-            "args" => { "image" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/account/update_profile_image",
+            "args"      => { "image" => 1, },
         },
         "update_profile_background_image" => {
-            "post" => 1,
-            "uri"  => "/account/update_profile_background_image",
-            "args" => { "image" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/account/update_profile_background_image",
+            "args"      => { "image" => 1, },
         },
         "update_delivery_device" => {
-            "post" => 1,
-            "uri"  => "/account/update_delivery_device",
-            "args" => { "device" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/account/update_delivery_device",
+            "args"      => { "device" => 1, },
         },
         "rate_limit_status" => {
-            "post" => 0,
-            "uri"  => "/account/rate_limit_status",
-            "args" => {},
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/account/rate_limit_status",
+            "args"      => {},
         },
         "favorites" => {
-            "post" => 0,
-            "uri"  => "/favorites",
-            "args" => {
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/favorites",
+            "args"      => {
                 "id"   => 0,
                 "page" => 0,
             },
         },
         "create_favorite" => {
-            "post" => 1,
-            "uri"  => "/favorites/create/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/favorites/create/ID",
+            "args"      => { "id" => 1, },
         },
         "destroy_favorite" => {
-            "post" => 1,
-            "uri"  => "/favorites/destroy/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/favorites/destroy/ID",
+            "args"      => { "id" => 1, },
         },
         "enable_notifications" => {
-            "post" => 1,
-            "uri"  => "/notifications/follow/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/notifications/follow/ID",
+            "args"      => { "id" => 1, },
         },
         "disable_notifications" => {
-            "post" => 1,
-            "uri"  => "/notifications/leave/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/notifications/leave/ID",
+            "args"      => { "id" => 1, },
         },
         "create_block" => {
-            "post" => 1,
-            "uri"  => "/blocks/create/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/blocks/create/ID",
+            "args"      => { "id" => 1, },
         },
         "destroy_block" => {
-            "post" => 1,
-            "uri"  => "/blocks/destroy/ID",
-            "args" => { "id" => 1, },
+            "blankargs" => 0,
+            "post"      => 1,
+            "uri"       => "/blocks/destroy/ID",
+            "args"      => { "id" => 1, },
         },
         "test" => {
-            "post" => 0,
-            "uri"  => "/help/test",
-            "args" => {},
+            "blankargs" => 1,
+            "post"      => 0,
+            "uri"       => "/help/test",
+            "args"      => {},
         },
         "downtime_schedule" => {
-            "post" => 0,
-            "uri"  => "/help/downtime_schedule",
-            "args" => {},
+            "blankargs" => 100,
+            "post"      => 0,
+            "uri"       => "/help/downtime_schedule",
+            "args"      => {},
         },
     );
 
@@ -442,19 +475,37 @@ BEGIN {
             my $args = shift;
 
             my $whoami;
-            my $url = $self->{apiurl};
-            my $finalargs;
-            my $seen_id = 0;
-
+            my $url       = $self->{apiurl};
+            my $finalargs = "";
+            my $seen_id   = 0;
+            my $retval;
+            
             ### Store the method name, since a sub doesn't know it's name without
             ### a bit of work and more dependancies than are really prudent.
             eval { $whoami = $methodname };
+
+            ### Get this method's definition from the table
+            my $method_def = $apicalls{$whoami};
+
+            ### Check if no args sent and args are required.
+            if ( ( !defined $args ) && ( !$method_def->{blankargs} ) ) {
+                if ( $self->{die_on_validation} ) {
+                    die "The method $whoami requires arguments and none specified. Terminating.";
+                } else {
+                    warn "The method $whoami requires arguments and none specified. Discarding request";
+                    $self->{response_error} = {
+                        "request" => $url,
+                        "error"   => "The method $whoami requires arguments and none specified."
+                    };
+                }
+                return undef;
+            }
 
             ### For backwards compatibility we need to handle the user handing a single, scalar
             ### arg in, instead of a hashref. Since the methods that allowed this in 1.xx have
             ### different defaults, use a bit of logic to stick the value in the right place.
 
-            if ( (!ref($args)) && ($args) ) {
+            if ( ( !ref($args) ) && ( defined $args ) ) {
                 my $single_arg;
                 if ( $whoami eq "update" ) {
                     $single_arg = "status";
@@ -463,7 +514,18 @@ BEGIN {
                 } elsif ( $whoami =~ m/friends\b|show_user|create_friend/ ) {
                     $single_arg = "id";
                 } else {
-                    $single_arg = $args;
+                    ### $args is not a hashref and $whoami is not one of the legacy
+                    ### subs, so we punt.
+                    if ( $self->{die_on_validation} ) {
+                        die "Argument is not a HASHREF. Terminating.";
+                    } else {
+                        warn "Argument is not a HASHREF. Discarding request";
+                        $self->{response_error} = {
+                            "request" => $url,
+                            "error"   => "Argument is not a HASHREF."
+                        };
+                    }
+                    return undef;
                 }
                 $args = { $single_arg => $args };
             }
@@ -473,9 +535,6 @@ BEGIN {
             if ( $whoami eq "update" ) {
                 $args->{source} = $self->{source};
             }
-
-            ### Get this method's definition from the table
-            my $method_def = $apicalls{$whoami};
 
             ### Create the URL. If it ends in /ID it needs the id param substituted
             ### into the URL and not as an arg.
@@ -515,57 +574,62 @@ BEGIN {
                 $url .= $method_def->{uri} . ".json";
             }
 
-            ### Validate args
+            ### Validate args. Don't validate if $args is undef, we've already checked that
+            ### undef is OK to pass up above
+            if ( defined $args ) {
+                foreach my $argname ( sort keys %{ $method_def->{args} } ) {
+                    if ( $whoami eq "show_user" ) {
+                        ### We already validated the wonky args to show_user above.
+                        next;
+                    }
+                    if ( ( $argname eq "id" ) and ($seen_id) ) {
+                        next;
+                    }
+                    if ( !$self->{skip_arg_validation} ) {
 
-            foreach my $argname ( sort keys %{ $method_def->{args} } ) {
-                if ( $whoami eq "show_user" ) {
-                    ### We already validated the wonky args to show_user above.
-                    next;
+                        if (    ( $method_def->{args}->{$argname} )
+                            and ( !defined $args->{$argname} ) )
+                        {
+                            if ( $self->{die_on_validation} ) {
+                                die "The field $argname is required and not specified. Terminating.";
+                            } else {
+                                warn "The field $argname is required and not specified, discarding request.";
+                                $self->{response_error} = {
+                                    "request" => $url,
+                                    "error"   => "The field $argname is required and not specified"
+                                };
+                            }
+                            return undef;
+                        }
+
+                    }
+
                 }
-                if ( ( $argname eq "id" ) and ($seen_id) ) {
-                    next;
-                }
-                if ( !$self->{skip_arg_validation} ) {
-                    if (    ( $method_def->{args}->{$argname} )
-                        and ( !defined $args->{$argname} ) )
+
+                ### Create safe arg hashref
+
+                foreach my $argname ( sort keys %{$args} ) {
+                    if ( ( !defined $method_def->{args}->{$argname} ) and ( !$self->{skip_arg_validation} ) )
                     {
-                        if ( $self->{die_on_validation} ) {
-                            die "The field $argname is required and not specified. Terminating.";
-                        } else {
-                            warn "The field $argname is required and not specified, discarding request.";
-                            $self->{response_error} = {
-                                "request" => $url,
-                                "error"   => "The field $argname is required and not specified"
-                            };
-                        }
-                        return undef;
-                    }
-
-                }
-
-            }
-
-            ### Create safe arg hashref
-
-            foreach my $argname ( sort keys %{$args} ) {
-                if ( ( !defined $method_def->{args}->{$argname} ) and ( !$self->{skip_arg_validation} ) ) {
-                    warn "The field $argname is unknown and will not be passed";
-                } else {
-
-                    # drop arguments with undefined values (backcompat with v1.xx)
-                    next unless defined $args->{$argname};
-                    if ( $method_def->{post} ) {
-                        $finalargs->{$argname} = $args->{$argname};
+                        warn "The field $argname is unknown and will not be passed";
                     } else {
-                        $finalargs = "";
-                        if ( !$finalargs ) {
-                            $finalargs .= "?";
+
+                        # drop arguments with undefined values (backcompat with v1.xx)
+                        next unless defined $args->{$argname};
+                        if ( $method_def->{post} ) {
+                            $finalargs->{$argname} = $args->{$argname};
+                        } else {
+                            $finalargs = "";
+                            if ( !$finalargs ) {
+                                $finalargs .= "?";
+                            }
+                            $finalargs .= "&" unless $finalargs eq "?";
+                            $finalargs .= $argname . "=" . uri_escape( $args->{$argname} );
                         }
-                        $finalargs .= "&" unless $finalargs eq "?";
-                        $finalargs .= $argname . "=" . uri_escape( $args->{$argname} );
                     }
                 }
             }
+
             ### Send the LWP request
 
             my $req;
@@ -580,9 +644,10 @@ BEGIN {
 
             $self->{response_code}    = $req->code;
             $self->{response_message} = $req->message;
-
             $self->{response_error} = $req->content;
             return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;
+            
+
           }
     }
 }
