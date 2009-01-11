@@ -479,7 +479,7 @@ BEGIN {
             my $finalargs = "";
             my $seen_id   = 0;
             my $retval;
-            
+
             ### Store the method name, since a sub doesn't know it's name without
             ### a bit of work and more dependancies than are really prudent.
             eval { $whoami = $methodname };
@@ -644,9 +644,25 @@ BEGIN {
 
             $self->{response_code}    = $req->code;
             $self->{response_message} = $req->message;
-            $self->{response_error} = $req->content;
-            return ( $req->is_success ) ? JSON::Any->jsonToObj( $req->content ) : undef;
-            
+            $self->{response_error}   = $req->content;
+
+            undef $retval;
+
+            if ( $req->is_success ) {
+                $retval = eval { JSON::Any->jsonToObj( $req->content ) };
+
+                ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+                ### which would cause it to die. This way it simply assigns undef to $retval
+                ### If this happens, response_code, response_message and response_error aren't going to
+                ### have any indication what's wrong, so we prepend a statement to request_error.
+
+                if ( !defined $retval ) {
+                    $self->{response_error} =
+                      "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+                }
+            }
+
+            return $retval;
 
           }
     }
