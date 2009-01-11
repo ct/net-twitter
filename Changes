@@ -1,5 +1,13 @@
 Revision history for Net-Twitter
 
+2.00_04 - Sat Jan 10, 2009
+	o Remove result hack for relationship_exists as twitter has fixed their end.
+	o Completely rework arg validation to allow calling with no args, yet trapping 
+		where this is wrong.
+	o Add JSON eval trapping to regular methods, it was mistakenly only 
+		happening on search.
+	o Massive POD rewrites to clarify and expand, and even correct a few mistakes.
+	
 2.00_03 - Fri Jan 9, 2009
 	o Add Net::Identica which wraps a Net::Twitter object and sets the default connection to identi.ca
 	o Fix show_user argument handling which was broken to this point
