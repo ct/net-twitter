@@ -56,10 +56,12 @@ twitter compatible API.
 This module wraps L<Net::Twitter>, defaulting to the connection information 
 for identica instead of twitter.
 
-All other methods in L<Net::Twitter> work as documented, except where listed in the 
-identica/laconica documentation at:
+All other methods in L <Net::Twitter> work as documented,
+  except where listed in the identica / laconica documentation at
+  :
 
-L<http://laconi.ca/trac/wiki/TwitterCompatibleAPI>
+  L <http://laconi.ca/trac/wiki/TwitterCompatibleAPI>
+
 
 =head1 AUTHOR
 
