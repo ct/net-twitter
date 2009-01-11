@@ -454,7 +454,7 @@ BEGIN {
             ### arg in, instead of a hashref. Since the methods that allowed this in 1.xx have
             ### different defaults, use a bit of logic to stick the value in the right place.
 
-            if ( !ref($args) ) {
+            if ( (!ref($args)) && ($args) ) {
                 my $single_arg;
                 if ( $whoami eq "update" ) {
                     $single_arg = "status";
