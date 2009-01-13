@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.00_04
+# v2.00_05
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.00_04";
+$VERSION = "2.00_05";
 use warnings;
 use strict;
 
@@ -46,7 +46,9 @@ sub new {
 
     ### Allow specifying a class other than LWP::UA
 
+    $conf{no_fallback} = 0 unless defined $conf{no_fallback};
     $conf{useragent_class} ||= 'LWP::UserAgent';
+
     eval "use $conf{useragent_class}";
     if ($@) {
 
@@ -55,9 +57,10 @@ sub new {
         }
 
         warn $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
+        $conf{useragent_class} = "LWP::UserAgent";
     }
 
-    ### Create a LWP::UA Object to work with
+    ### Create an LWP Object to work with
 
     $conf{ua} = $conf{useragent_class}->new();
 
@@ -84,7 +87,7 @@ sub new {
     if ( $conf{twittervision} ) {
         $conf{tvua} = $conf{useragent_class}->new();
         $conf{tvua}->credentials( $conf{tvhost}, $conf{tvrealm}, $conf{username}, $conf{password} );
-        $conf{tvua}->agent("Net::Twitter/$Net::Twitter::VERSION");
+        $conf{tvua}->agent( $conf{useragent} );
         $conf{tvua}->default_header( "X-Twitter-Client:"         => $conf{clientname} );
         $conf{tvua}->default_header( "X-Twitter-Client-Version:" => $conf{clientver} );
         $conf{tvua}->default_header( "X-Twitter-Client-URL:"     => $conf{clienturl} );
@@ -149,8 +152,8 @@ sub search {
     ### Allow use of "query", but use the argument "q"
     ### This has the side effect of overwriting q with query
 
-    if ( $args->{query} ) {
-        if ( $args->{q} ) {
+    if ( defined $args->{query} ) {
+        if ( defined $args->{q} ) {
             warn "Both 'q' and 'query' specified, using value of 'query'.";
         }
         $args->{q} = delete( $args->{query} );
@@ -180,6 +183,8 @@ sub search {
         $url .= $argname . "=" . uri_escape( $args->{$argname} );
     }
 
+    ### Make the request, store the results.
+
     my $req = $self->{ua}->get($url);
 
     $self->{response_code}    = $req->code;
@@ -188,13 +193,13 @@ sub search {
 
     undef $retval;
 
+    ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+    ### which would cause it to die. This way it simply assigns undef to $retval
+    ### If this happens, response_code, response_message and response_error aren't going to
+    ### have any indication what's wrong, so we prepend a statement to request_error.
+
     if ( $req->is_success ) {
         $retval = eval { JSON::Any->jsonToObj( $req->content ) };
-
-        ### Trap a case where twitter could return a 200 success but give up badly formed JSON
-        ### which would cause it to die. This way it simply assigns undef to $retval
-        ### If this happens, response_code, response_message and response_error aren't going to
-        ### have any indication what's wrong, so we prepend a statement to request_error.
 
         if ( !defined $retval ) {
             $self->{response_error} =
@@ -677,7 +682,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.00_04
+This document describes Net::Twitter version 2.00_05
 
 =head1 SYNOPSIS
 
