@@ -635,9 +635,6 @@ BEGIN {
             }
 
             ### Send the LWP request
-            print "URL - $url\n";
-            print Dumper $finalargs;
-
             my $req;
             if ( $method_def->{post} ) {
                 $req = $self->{ua}->post( $url, $finalargs );
