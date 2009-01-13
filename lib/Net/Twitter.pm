@@ -182,7 +182,6 @@ sub search {
         $url .= "&" unless substr( $url, -1 ) eq "?";
         $url .= $argname . "=" . uri_escape( $args->{$argname} );
     }
-
     ### Make the request, store the results.
 
     my $req = $self->{ua}->get($url);
@@ -480,9 +479,9 @@ BEGIN {
             my $args = shift;
 
             my $whoami;
-            my $url       = $self->{apiurl};
-            my $finalargs = "";
-            my $seen_id   = 0;
+            my $url = $self->{apiurl};
+            my $finalargs;
+            my $seen_id = 0;
             my $retval;
 
             ### Store the method name, since a sub doesn't know it's name without
@@ -636,6 +635,8 @@ BEGIN {
             }
 
             ### Send the LWP request
+            print "URL - $url\n";
+            print Dumper $finalargs;
 
             my $req;
             if ( $method_def->{post} ) {
