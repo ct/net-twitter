@@ -66,8 +66,8 @@ L<http://laconi.ca/trac/wiki/TwitterCompatibleAPI>
 
 Chris Thompson <cpan@cthompson.com>
 
-The framework of this module is shamelessly stolen from L<Net::AIML>. Big
-ups to Chris "perigrin" Prather for that.
+This replaces the original Net::Identica written by Alan Haggai Alavi and uses
+the identi.ca/laconi.ca twitter API instead of direct HTML parsing.
        
 =head1 LICENCE AND COPYRIGHT
 

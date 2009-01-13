@@ -1,5 +1,12 @@
 Revision history for Net-Twitter
 
+2.00_05 - Mon Jan 12, 2009
+	o 2.00_04 had a glaring error that prevented anything that used an HTTP POST, like update(), from
+		actually, you know, POSTing.
+	o Great suggestion from semifor on passing form values to LWP::UserAgent replaced 34 lines of
+		ridiculous arg handling with 3 lines and a call to URI. Much better.
+	o Yet more POD and minor tweaks.
+
 2.00_04 - Sat Jan 10, 2009
 	o Remove result hack for relationship_exists as twitter has fixed their end.
 	o Completely rework arg validation to allow calling with no args, yet trapping 
