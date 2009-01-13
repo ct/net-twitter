@@ -491,6 +491,9 @@ BEGIN {
             ### Get this method's definition from the table
             my $method_def = $apicalls{$whoami};
 
+            ### Set the correct request type for this method
+            my $reqtype = ( $method_def->{post} ) ? "POST" : "GET";
+
             ### Check if no args sent and args are required.
             if ( ( !defined $args ) && ( !$method_def->{blankargs} ) ) {
                 if ( $self->{die_on_validation} ) {
@@ -610,40 +613,13 @@ BEGIN {
 
                 }
 
-                ### Create safe arg hashref
-
-                foreach my $argname ( sort keys %{$args} ) {
-                    if ( ( !defined $method_def->{args}->{$argname} ) and ( !$self->{skip_arg_validation} ) )
-                    {
-                        warn "The field $argname is unknown and will not be passed";
-                    } else {
-
-                        # drop arguments with undefined values (backcompat with v1.xx)
-                        next unless defined $args->{$argname};
-                        if ( $method_def->{post} ) {
-                            $finalargs->{$argname} = $args->{$argname};
-                        } else {
-                            $finalargs = "";
-                            if ( !$finalargs ) {
-                                $finalargs .= "?";
-                            }
-                            $finalargs .= "&" unless $finalargs eq "?";
-                            $finalargs .= $argname . "=" . uri_escape( $args->{$argname} );
-                        }
-                    }
-                }
             }
 
             ### Send the LWP request
-            my $req;
-            if ( $method_def->{post} ) {
-                $req = $self->{ua}->post( $url, $finalargs );
-            } else {
-                if ($finalargs) {
-                    $url .= $finalargs;
-                }
-                $req = $self->{ua}->get($url);
-            }
+            my $uri = URI->new($url);
+            $uri->query_form($args);
+            
+            my $req = $self->{ua}->request( HTTP::Request->new( $reqtype, $uri ) );
 
             $self->{response_code}    = $req->code;
             $self->{response_message} = $req->message;
