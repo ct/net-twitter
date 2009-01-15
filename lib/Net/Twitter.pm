@@ -105,6 +105,14 @@ sub new {
     return bless {%conf}, $class;
 }
 
+### Return a shallow copy of the object to allow error handling when used in
+### Parallel/Async setups like POE. Set response_error to undef to prevent
+### spillover, just in case.
+
+sub clone { bless { %{ $_[0] }, response_error => undef } }
+
+### Change the credentials
+
 sub credentials {
     my ( $self, $username, $password, $apihost, $apirealm ) = @_;
 
@@ -479,7 +487,7 @@ BEGIN {
             my $args = shift;
 
             my $whoami;
-            my $url = $self->{apiurl};
+            my $url     = $self->{apiurl};
             my $seen_id = 0;
             my $retval;
 
@@ -617,7 +625,7 @@ BEGIN {
             ### Send the LWP request
             my $uri = URI->new($url);
             $uri->query_form($args);
-            
+
             my $req = $self->{ua}->request( HTTP::Request->new( $reqtype, $uri ) );
 
             $self->{response_code}    = $req->code;
@@ -665,11 +673,22 @@ This document describes Net::Twitter version 2.00
 
    my $twit = Net::Twitter->new(username=>"myuser", password=>"mypass" );
 
-   $result = $twit->update(status => "My current Status");
+   my $result = $twit->update(status => "My current Status");
 
-   $twit->credentials("otheruser", "otherpass");
+   my $twit->credentials("otheruser", "otherpass");
 
-   $result = $twit->update(status => "Status for otheruser");
+   my $result = $twit->update(status => "Status for otheruser");
+   
+   my $result = $twitter->search('Albi the racist dragon');
+   foreach my $tweet (@{ $results }) {
+     my $speaker =  $tweet->{from_user};
+     my $text = $tweet->{text};
+     my $time = $tweet->{created_at};
+     print "$time <$speaker> $text\n";
+   }
+
+    my $steve = $twitter->search('Steve');
+    $twitter->update($steve .'? Who is steve?');
 
 =head1 DESCRIPTION
 
@@ -792,6 +811,13 @@ new() will change this behavior to simply executing a die() with the appropriate
 defaults to false.
 
 =back
+
+=item C<clone()>
+
+Returns a clone of the Net::Twitter object. This can be used when Net::Twitter is used in a Parallel
+or Asynchronous framework to enable easier access to returned error values. All clones share
+the same LWP::UserAgent object, so calling C<credentials()> will change the login credentials of all
+clones.
 
 =item C<credentials($username, $password, $apihost, $apiurl)>
  
