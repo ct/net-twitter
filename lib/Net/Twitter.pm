@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.00_05
+# v2.00
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.00_05";
+$VERSION = "2.00";
 use warnings;
 use strict;
 
@@ -480,7 +480,6 @@ BEGIN {
 
             my $whoami;
             my $url = $self->{apiurl};
-            my $finalargs;
             my $seen_id = 0;
             my $retval;
 
@@ -656,7 +655,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.00_05
+This document describes Net::Twitter version 2.00
 
 =head1 SYNOPSIS
 
