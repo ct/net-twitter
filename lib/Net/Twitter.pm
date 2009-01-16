@@ -137,6 +137,33 @@ sub http_message {
     return $self->{response_message};
 }
 
+sub update_twittervision {
+    my ( $self, $location ) = @_;
+    my $response;
+ 
+    if ( $self->{twittervision} ) {
+        my $tvreq = $self->{tvua}->post(
+            $self->{tvurl} . "/user/update_location.json",
+            [ location => uri_escape($location) ]
+        );
+        if ( $tvreq->content ne "User not found" ) {
+            $self->{response_code}    = $tvreq->code;
+            $self->{response_message} = $tvreq->message;
+            $self->{response_error}   = $tvreq->content;
+            
+            if ( $tvreq->is_success ) {
+                $response = eval { JSON::Any->jsonToObj( $tvreq->content ) };
+
+                if ( !defined $response ) {
+                    $self->{response_error} =
+                      "TWITTERVISION RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $tvreq->content;
+                }
+            }
+        }
+    }
+    return $response;
+}
+
 sub search {
     my $self = shift;
     my $args = shift;
