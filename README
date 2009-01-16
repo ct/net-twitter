@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 1.22
+    This document describes Net::Twitter version 2.00
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -11,11 +11,23 @@ SYNOPSIS
 
        my $twit = Net::Twitter->new(username=>"myuser", password=>"mypass" );
 
-       $result = $twit->update("My current Status");
+       my $result = $twit->update(status => "My current Status");
 
-       $twit->credentials("otheruser", "otherpass");
+       my $twit->credentials("otheruser", "otherpass");
 
-       $result = $twit->update("Status for otheruser");
+       my $result = $twit->update(status => "Status for otheruser");
+
+       my $result = $twitter->search('Albi the racist dragon');
+
+       foreach my $tweet (@{ $results }) {
+         my $speaker =  $tweet->{from_user};
+         my $text = $tweet->{text};
+         my $time = $tweet->{created_at};
+         print "$time <$speaker> $text\n";
+       }
+
+        my $steve = $twitter->search('Steve');
+        $twitter->update($steve .'? Who is steve?');
 
 DESCRIPTION
     http://www.twitter.com provides a web 2.0 type of ubiquitous presence.
@@ -45,7 +57,7 @@ DESCRIPTION
             "Net::Twitter/$Net::Twitter::Version (Perl)"
 
         "useragent_class"
-            OPTIONAL: A LWP::UserAgent compatible class, e.g.,
+            OPTIONAL: An LWP::UserAgent compatible class, e.g.,
             LWP::UserAgent::POE. If omitted, this will default to
             LWP::UserAgent.
 
@@ -61,9 +73,8 @@ DESCRIPTION
             timeline.
 
             Twitter claims that specifying a nonexistant code will cause the
-            system to default to "from web". Some testing with invalid
-            source codes has caused certain requests to fail, returning
-            undef. If you don't have a code from twitter, don't set one.
+            system to default to "from web". If you don't have a code from
+            twitter, don't set one.
 
         "clientname"
             OPTIONAL: Sets the X-Twitter-Client-Name: HTTP Header. If
@@ -94,6 +105,20 @@ DESCRIPTION
 
             "apirealm" defaults to "Twitter API".
 
+        "identica"
+            OPTIONAL: Passing a true value for identica to new() will preset
+            values for "apiurl", "apirealm" and "apihost" which will point
+            at the http://identi.ca twitter compatible API.
+
+            All methods in Net::Twitter work as documented, except where
+            listed in the identica/laconica documentation at:
+
+            <http://laconi.ca/trac/wiki/TwitterCompatibleAPI>
+
+            For simplicity, you can also use Net::Identica in your script
+            instead of Net::Twitter, which will default to identica being
+            set to true.
+
         "twittervision"
             OPTIONAL: If the "twittervision" argument is passed with a true
             value, the module will enable use of the
@@ -102,12 +127,37 @@ DESCRIPTION
             hashref. Also, the "update_twittervision" method will allow
             setting of the current location.
 
+        "skip_arg_validation"
+            OPTIONAL: Beginning in 2.00, Net::Twitter will validate
+            arguments passed to the various API methods, flagging required
+            args that were not passed, and discarding args passed that do
+            not exist in the API specification. Passing a boolean True for
+            skip_arg_validation into new() will skip this validation process
+            entirely and allow requests to proceed regardless of the args
+            passed. This defaults to false.
+
+        "die_on_validation"
+            OPTIONAL: In the event that the arguments passed to a method do
+            not pass the validation process listed above, the default action
+            will be to warn the user, make the error readable through the
+            get_error method listed below, and to return undef to the
+            caller. Passing a boolean true value for die_on_validation to
+            new() will change this behavior to simply executing a die() with
+            the appropriate error message. This defaults to false.
+
+    "clone()"
+        Returns a shallow copy of the Net::Twitter object. This can be used
+        when Net::Twitter is used in a Parallel or Asynchronous framework to
+        enable easier access to returned error values. All clones share the
+        same LWP::UserAgent object, so calling "credentials()" will change
+        the login credentials of all clones.
+
     "credentials($username, $password, $apihost, $apiurl)"
         Change the credentials for logging into twitter. This is helpful
         when managing multiple accounts.
 
         "apirealm" and "apihost" are optional and will default to the
-        standard twitter versions if omitted.
+        existing settings if omitted.
 
     "http_code"
         Returns the HTTP response code of the most recent request.
@@ -126,13 +176,7 @@ DESCRIPTION
         Set your current status. This returns a hashref containing your most
         recent status. Returns undef if an error occurs.
 
-        This method's args changed slightly starting with Net::Twitter 1.18.
-        In 1.17 and back this method took a single argument of a string to
-        set as update. For backwards compatibility, this manner of calling
-        update is still valid.
-
-        As of 1.18 Net::Twitter will also accept a hashref containing one or
-        two arguments.
+        The method accepts a hashref containing one or two arguments.
 
         "status"
             REQUIRED. The text of your status update.
@@ -165,59 +209,61 @@ DESCRIPTION
         authenticating user must be the author of the specified status.
 
     "user_timeline(...)"
-        Returns the 20 most recent statuses posted in the last 24 hours from
-        the authenticating user. It's also possible to request another
-        user's timeline via the id parameter below.
+        This returns an arrayref to an array of hashrefs, containing the 20
+        (or more) posts from either the authenticating user (if no argument
+        is passed), or from a specific user if the id field is passed in a
+        hashref.
 
         Accepts an optional argument of a hashref:
 
         "id"
-            ID or email address of a user other than the authenticated user,
-            in order to retrieve that user's user_timeline.
+            OPTIONAL: ID or email address of a user other than the
+            authenticated user, in order to retrieve that user's
+            user_timeline.
 
         "since"
-            Narrows the returned results to just those statuses created
-            after the specified HTTP-formatted date.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified HTTP-formatted date.
 
         "since_id"
-            Narrows the returned results to just those statuses created
-            after the specified ID.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified ID.
 
         "count"
-            Narrows the returned results to a certain number of statuses.
-            This is limited to 200.
+            OPTIONAL: Narrows the returned results to a certain number of
+            statuses. This is limited to 200.
 
         "page"
-            Gets the 20 next most recent statuses from the authenticating
-            user and that user's friends, eg "page=3".
+            OPTIONAL: Gets the 20 next most recent statuses from the
+            authenticating user and that user's friends, eg "page=3".
 
     "public_timeline()"
-        This returns a hashref containing the public timeline of all twitter
-        users. Returns undef if an error occurs.
-
-        WARNING: Twitter has removed the optional argument of a status ID
-        limiting responses to only statuses greater than that ID. As of
-        Net::Twitter 1.18 this parameter has been removed.
+        This returns an arrayref to an array of hashrefs, containing the
+        information and status of each of the last 20 posts by all
+        non-private twitter users.
 
     "friends_timeline(...)"
-        Returns the 20 most recent statuses posted in the last 24 hours from
-        the authenticating user and that user's friends. It's also possible
-        to request another user's friends_timeline via the id parameter
-        below.
+        Returns the 20 most recent statuses posted from the authenticating
+        user and that user's friends. It's also possible to request another
+        user's friends_timeline via the id parameter below.
 
-        Accepts an optional argument hashref:
+        If called with no arguments, returns the friends' timeline for the
+        authenticating user.
+
+        Accepts an optional hashref as an argument:
 
         "id"
-            User id or email address of a user other than the authenticated
-            user, in order to retrieve that user's friends_timeline.
+            OPTIONAL: User id or email address of a user other than the
+            authenticated user, in order to retrieve that user's
+            friends_timeline.
 
         "since"
-            Narrows the returned results to just those statuses created
-            after the specified HTTP-formatted date.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified HTTP-formatted date.
 
         "since_id"
-            Narrows the returned results to just those statuses created
-            after the specified ID.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified ID.
 
         "count"
             Narrows the returned results to a certain number of statuses.
@@ -228,18 +274,10 @@ DESCRIPTION
             user and that user's friends, eg "page=3".
 
     "replies(...)"
-        Returns the 20 most recent replies (status updates prefixed with
-        @username posted by users who are friends with the user being
-        replied to) to the authenticating user.
-
-        This method's args changed slightly starting with Net::Twitter 1.18.
-        In 1.17 and back this method took a single argument of a page to
-        retrieve, to retrieve the next 20 most recent statuses. For
-        backwards compatibility, this manner of calling replies is still
-        valid.
-
-        As of 1.18 Net::Twitter will also accept a hashref containing up to
-        three arguments.
+        This returns an arrayref to an array of hashrefs, containing the
+        information and status of each of the last 20 replies (status
+        updates prefixed with @username posted by users who are friends with
+        the user being replied to) to the authenticating user.
 
         "since"
             OPTIONAL: Narrows the returned results to just those replies
@@ -255,9 +293,11 @@ DESCRIPTION
 
   USER METHODS
     "friends()"
-        This returns a hashref containing the most recent status of those
-        you have marked as friends in twitter. Returns undef if an error
-        occurs.
+        This returns an arrayref to an array of hashrefs. Each hashref
+        contains the information and status of those you have marked as
+        friends in twitter. Returns undef if an error occurs.
+
+        Takes a hashref as an arg:
 
         "since"
             OPTIONAL: Narrows the returned results to just those friendships
@@ -269,11 +309,15 @@ DESCRIPTION
             authenticated user, in order to retrieve that user's friends.
 
         "page"
-            Gets the 100 next most recent friends, eg "page=3".
+            OPTIONAL: Gets the 100 next most recent friends, eg "page=3".
 
     "followers()"
-        This returns a hashref containing the timeline of those who follow
-        your status in twitter. Returns undef if an error occurs.
+        his returns an arrayref to an array of hashrefs. Each hashref
+        contains the information and status of those who follow your status
+        in twitter. Returns undef if an error occurs.
+
+        If called without an argument returns the followers for the
+        authenticating user, but can pull followers for a specific ID.
 
         Accepts an optional hashref for arguments:
 
@@ -282,13 +326,13 @@ DESCRIPTION
             a list of followers.
 
         "page"
-            Retrieves the next 100 followers.
+            OPTIONAL: Retrieves the next 100 followers.
 
     "show_user()"
-        Returns extended information of a single user.
+        Returns a hashref containing extended information of a single user.
 
         The argument is a hashref containing either the user's ID or email
-        address:
+        address. It is required to pass either one or the other:
 
         "id"
             The ID or screen name of the user.
@@ -310,15 +354,15 @@ DESCRIPTION
         Accepts an optional hashref for arguments:
 
         "page"
-            Retrieves the 20 next most recent direct messages.
+            OPTIONAL: Retrieves the 20 next most recent direct messages.
 
         "since"
-            Narrows the returned results to just those statuses created
-            after the specified HTTP-formatted date.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified HTTP-formatted date.
 
         "since_id"
-            Narrows the returned results to just those statuses created
-            after the specified ID.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified ID.
 
     "sent_direct_messages()"
         Returns a list of the direct messages sent by the authenticating
@@ -327,15 +371,15 @@ DESCRIPTION
         Accepts an optional hashref for arguments:
 
         "page"
-            Retrieves the 20 next most recent direct messages.
+            OPTIONAL: Retrieves the 20 next most recent direct messages.
 
         "since"
-            Narrows the returned results to just those statuses created
-            after the specified HTTP-formatted date.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified HTTP-formatted date.
 
         "since_id"
-            Narrows the returned results to just those statuses created
-            after the specified ID.
+            OPTIONAL: Narrows the returned results to just those statuses
+            created after the specified ID.
 
     "new_direct_message($args)"
         Sends a new direct message to the specified user from the
@@ -344,10 +388,10 @@ DESCRIPTION
         REQUIRES an argument of a hashref:
 
         "user"
-            ID or email address of user to send direct message to.
+            REQUIRED: ID or email address of user to send direct message to.
 
         "text"
-            Text of direct message.
+            REQUIRED: Text of direct message.
 
     "destroy_direct_message($id)"
         Destroys the direct message specified in the required ID parameter.
@@ -357,16 +401,8 @@ DESCRIPTION
   FRIENDSHIP METHODS
     "create_friend(...)"
         Befriends the user specified in the id parameter as the
-        authenticating user. Returns the befriended user in the requested
-        format when successful.
-
-        This method's args changed slightly starting with Net::Twitter 1.18.
-        In 1.17 and back this method took a single argument of id to
-        befriend. For backwards compatibility, this manner of calling update
-        is still valid.
-
-        As of 1.18 Net::Twitter will also accept a hashref containing one or
-        two arguments.
+        authenticating user. Returns a hashref containing the befriended
+        user's information when successful.
 
         "id"
             REQUIRED. The ID or screen name of the user to befriend.
@@ -377,18 +413,17 @@ DESCRIPTION
 
     "destroy_friend($id)"
         Discontinues friendship with the user specified in the ID parameter
-        as the authenticating user. Returns the un-friended user in the
-        requested format when successful.
+        as the authenticating user. Returns a hashref containing the
+        unfriended user's information when successful.
 
     "relationship_exists($user_a, $user_b)"
         Tests if friendship exists between the two users specified as
-        arguments.
+        arguments. Both arguments are REQUIRED.
 
   ACCOUNT METHODS
     "verify_credentials()"
-        Returns an HTTP 200 OK response code and a format-specific response
-        if authentication was successful. Use this method to test if
-        supplied user credentials are valid with minimal overhead.
+        Returns a hashref containing the authenticating user's extended
+        information if the login credentials are correct.
 
     "end_session()"
         Ends the session of the authenticating user, returning a null
@@ -406,8 +441,9 @@ DESCRIPTION
 
     "update_delivery_device($device)"
         Sets which device Twitter delivers updates to for the authenticating
-        user. $device must be one of: "sms", "im", or "none". Sending none
-        as the device parameter will disable IM or SMS updates.
+        user. $device is required and must be one of: "sms", "im", or
+        "none". Sending none as the device parameter will disable IM or SMS
+        updates.
 
     "update_profile_colors(...)"
         Sets one or more hex values that control the color scheme of the
@@ -426,16 +462,16 @@ DESCRIPTION
     "update_profile_image(...)")
         Updates the authenticating user's profile image.
 
-        This takes as an argument a GIF, JPG or PNG image, no larger than
-        700k in size. Expects raw image data, not a pathname or URL to the
-        image.
+        This takes as a required argument a GIF, JPG or PNG image, no larger
+        than 700k in size. Expects raw image data, not a pathname or URL to
+        the image.
 
     "update_profile_background_image(...)")
         Updates the authenticating user's profile background image.
 
-        This takes as an argument a GIF, JPG or PNG image, no larger than
-        800k in size. Expects raw image data, not a pathname or URL to the
-        image.
+        This takes as a required argument a GIF, JPG or PNG image, no larger
+        than 800k in size. Expects raw image data, not a pathname or URL to
+        the image.
 
     "rate_limit_status"
         Returns the remaining number of API requests available to the
@@ -449,26 +485,26 @@ DESCRIPTION
 
         Takes as an argument a hashref containing fields to be updated. Only
         the parameters specified will be updated. For example, to only
-        update the "name" attribute, for example, only include that
-        parameter in the hashref.
+        update the "name" attribute include only that parameter in the
+        hashref.
 
         "name"
-            Twitter user's name. Maximum of 40 characters.
+            OPTIONAL: Twitter user's name. Maximum of 40 characters.
 
         "email"
-            Email address. Maximum of 40 characters. Must be a valid email
-            address.
+            OPTIONAL: Email address. Maximum of 40 characters. Must be a
+            valid email address.
 
         "url"
-            Homepage URL. Maximum of 100 characters. Will be prepended with
-            "http://" if not present.
+            OPTIONAL: Homepage URL. Maximum of 100 characters. Will be
+            prepended with "http://" if not present.
 
         "location"
-            Geographic location. Maximum of 30 characters. The contents are
-            not normalized or geocoded in any way.
+            OPTIONAL: Geographic location. Maximum of 30 characters. The
+            contents are not normalized or geocoded in any way.
 
         "description"
-            Personal description. Maximum of 160 characters.
+            OPTIONAL: Personal description. Maximum of 160 characters.
 
   FAVORITE METHODS
     "favorites()"
@@ -478,7 +514,7 @@ DESCRIPTION
         This takes a hashref as an argument:
 
         "id"
-            Optional. The ID or screen name of the user for whom to request
+            OPTIONAL. The ID or screen name of the user for whom to request
             a list of favorite statuses.
 
         "page"
@@ -490,14 +526,14 @@ DESCRIPTION
 
         This takes a hashref as an argument:
 
-        "id" Required. The ID of the status to favorite.
+        "id" REQUIRED: The ID of the status to favorite.
 
     "destroy_favorite()"
         Removes the specified ID as a favorite for the authenticating user.
 
         This takes a hashref as an argument:
 
-        "id" Required. The ID of the status to un-favorite.
+        "id" REQUIRED. The ID of the status to un-favorite.
 
   NOTIFICATION METHODS
     "enable_notifications()"
@@ -506,7 +542,7 @@ DESCRIPTION
 
         This takes a hashref as an argument:
 
-        "id" Required. The ID or screen name of the user to receive notices
+        "id" REQUIRED: The ID or screen name of the user to receive notices
         from.
 
     "disable_notifications()"
@@ -516,22 +552,98 @@ DESCRIPTION
         This takes a hashref as an argument:
 
         "id"
-            Required. The ID or screen name of the user to stop receiving
+            REQUIRED: The ID or screen name of the user to stop receiving
             notices from.
 
   BLOCK METHODS
     "create_block($id)"
-        Blocks the user specified in the ID parameter as the authenticating
-        user. Returns the blocked user in the requested format when
-        successful.
+        Blocks the user id passed as an argument from the authenticating
+        user. Returns a hashref containing the user information for the
+        blocked user when successful.
 
         You can find more information about blocking at
         <http://help.twitter.com/index.php?pg=kb.page&id=69>.
 
     "destroy_block($id)"
-        Un-blocks the user specified in the ID parameter as the
-        authenticating user. Returns the un-blocked user in the requested
-        format when successful.
+        Un-blocks the user id passed as an argument from the authenticating
+        user. Returns a hashref containing the user information for the
+        blocked user when successful.
+
+  SEARCH
+    As of version 2.00, Net::Twitter implements the search functionality of
+    Twitter, using code derived from Net::Twitter::Search by Brenda Wallace.
+
+    "search()"
+        Performs a search on http://search.twitter.com for your query
+        string.
+
+        This returns a hashref which is slightly different than the other
+        methods such as public_timeline. The hashref contains a key named
+        "results" which contains an arrayref to an array of hashrefs, each
+        hashref containing a single post. These hashrefs do not include the
+        "user" item with the posting user's information such as the
+        *_timeline methods do.
+
+        This method takes a required hashref as an argument:
+
+        "q"
+        "query"
+            REQUIRED: Specifies the string to search for. This can include
+            any of the Twitter search operators listed at
+            <http://search.twitter.com/operators>. Please see below for
+            information about backwards compatibility with
+            Net::Twitter::Search.
+
+            Both q and query are aliases to the same argument. Specifying
+            both will use the value specified for "query".
+
+            Please note that you cannot use the "near" search operator to
+            specify arbitrary Lat/Long locations. For this use the "geocode"
+            argument below.
+
+        "lang"
+            OPTIONAL: Restricts results to a specific language, given by an
+            ISO 639-1 code. For example {'lang' => 'en'}
+
+        "rpp"
+            OPTIONAL: Sets the number of posts to return per page, up to a
+            max of 100.
+
+        "page"
+            OPTIONAL: Sets the page number (starting at 1) to return, up to
+            a max of roughly 1500 results (based on rpp * page)
+
+        "since_id"
+            OPTIONAL: Restricts returned posts to those status ids greater
+            than the given id.
+
+        "geocode"
+            OPTIONAL: Returns posts by users located within the radius of
+            the given latitude/longitude, where the user's location is taken
+            from their Twitter profile. The format of the parameter value is
+            "latitide,longitude,radius", with radius units specified as
+            either "mi" (miles) or "km" (kilometers).
+
+        "show_user"
+            OPTIONAL: When set to a true boolean value "show_user" will
+            prepend "<username>:" to the beginning of the text of each post
+            returned.
+
+    BACKWARDS COMPATIBILITY WITH Net::Twitter::Search
+        In order to maintain backwards compatibility with
+        Net::Twitter::Search, the query/q arguments can be specified as
+        plain text:
+
+            $res = $twit->search("Farkle McFancypants")
+
+        In addition, you can, in this case, specify all of the above
+        arguments in a hashref as the second argument to the search method.
+
+            $res = $twit->search("Farkle McFancypants", {lang => "en"})
+
+        Any query/q arguments in the hashref passed in this manner will be
+        ignored, and the module will proceed using the string passed in the
+        first argument as the query.
 
   HELP METHODS
     "test()"
@@ -540,76 +652,23 @@ DESCRIPTION
 
     "downtime_schedule()"
         Returns the same text displayed on <http://twitter.com/home> when a
-        maintenance window is scheduled, in the requested format.
-
-CONFIGURATION AND ENVIRONMENT
-    Net::Twitter uses LWP internally. Any environment variables that LWP
-    supports should be supported by Net::Twitter. I hope.
+        maintenance window is scheduled.
 
 DEPENDENCIES
     LWP::UserAgent
+    URI::Escape
     JSON::Any
-        Starting with version 1.04, Net::Twitter requires JSON::Any instead
-        of a specific JSON handler module. Net::Twitter currently accepts
-        JSON::Any's default order for loading handlers.
-
-HTTP RESPONSE CODES
-    The Twitter API attempts to return appropriate HTTP status codes for
-    every request.
-
-    200 OK: everything went awesome.
-    304 Not Modified: there was no new data to return.
-    400 Bad Request: your request is invalid, and we'll return an error
-    message that tells you why. This is the status code returned if you've
-    exceeded the rate limit (see below).
-    401 Not Authorized: either you need to provide authentication
-    credentials, or the credentials provided aren't valid.
-    403 Forbidden: we understand your request, but are refusing to fulfill
-    it. An accompanying error message should explain why.
-    404 Not Found: either you're requesting an invalid URI or the resource
-    in question doesn't exist (ex: no such user).
-    500 Internal Server Error: we did something wrong. Please post to the
-    group about it and the Twitter team will investigate.
-    502 Bad Gateway: returned if Twitter is down or being upgraded.
-    503 Service Unavailable: the Twitter servers are up, but are overloaded
-    with requests. Try again later.
-
-    You can view the HTTP code and message returned after each request with
-    the "http_code" and "http_message" functions.
-
-TWITTER SOURCES
-    All tweets are set with a source, so that setting your status from the
-    web interface would display as "from web", and through an instant
-    messenger would show "from im".
-
-    It is possible to request a source entry from Twitter which will allow
-    your tweets to show as "from YourWidget".
-
-    Beginning in Net::Twitter 1.07 you may set this source by passing the
-    "source" parameter to the "new" constructor. See above.
-
-    Because of this, all statuses set through Net::Twitter 1.07 and above
-    will now show as "from Perl Net::Twitter" instead of "from web".
-
-    For more information, see "How do I get "from [my_application]" appended
-    to updates sent from my API application?" at:
-
-    <http://groups.google.com/group/twitter-development-talk/web/api-documen
-    tation>
-
-TWITTER TERMINOLOGY CHANGES
-  1.12 through 1.18
-    As of July 19th, 2007, the Twitter team has implemented a change in the
-    terminology used for friends and followers to alleviate confusion.
-
-    Beginning in Net::Twitter 1.12 the methods were renamed, with the old
-    ones listed as DEPRECATED. Beginning with 1.19 these methods have been
-    removed.
 
 BUGS AND LIMITATIONS
     Please report any bugs or feature requests to
     "bug-net-twitter@rt.cpan.org", or through the web interface at
-    <http://rt.cpan.org>.
+    <https://rt.cpan.org/Dist/Display.html?Queue=Net-Twitter>.
+
+    You can also join the Net::Twitter IRC channel at
+    irc://irc.perl.org/net-twitter
+
+    You can track Net::Twitter development at
+    http://github.com/ct/net-twitter/tree/2.0
 
 AUTHOR
     Chris Thompson <cpan@cthompson.com>
@@ -618,7 +677,7 @@ AUTHOR
     ups to Chris "perigrin" Prather for that.
 
 LICENCE AND COPYRIGHT
-    Copyright (c) 2008, Chris Thompson <cpan@cthompson.com>. All rights
+    Copyright (c) 2009, Chris Thompson <cpan@cthompson.com>. All rights
     reserved.
 
     This module is free software; you can redistribute it and/or modify it

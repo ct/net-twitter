@@ -1,153 +1,52 @@
 Revision history for Net-Twitter
 
-1.23 - Wed Jan 07, 2009
-	o Applied patch from Chris Nelson to trap error responses from LWP which
-		were causing JSON::Any to die. JSON errors should now just gracefully
-		return undef.
-	o Add IRC and github contact info
+2.00 - Thu Jan 15, 2009
+	o Final release including all of the below.
+	o Differences since 2.00_05
+		o Added Net::Twitter::Search stub file to act as a wrapper.
+		o Added clone() method
+		o More POD cleanup.
+		o Switched from die/warn to Carp::carp/croak
+
+2.00_05 - Mon Jan 12, 2009
+	o 2.00_04 had a glaring error that prevented anything that used an HTTP POST, like update(), from
+		actually, you know, POSTing.
+	o Great suggestion from semifor on passing form values to LWP::UserAgent replaced 34 lines of
+		ridiculous arg handling with 3 lines and a call to URI. Much better.
+	o Yet more POD and minor tweaks.
+
+2.00_04 - Sat Jan 10, 2009
+	o Remove result hack for relationship_exists as twitter has fixed their end.
+	o Completely rework arg validation to allow calling with no args, yet trapping 
+		where this is wrong.
+	o Add JSON eval trapping to regular methods, it was mistakenly only 
+		happening on search.
+	o Massive POD rewrites to clarify and expand, and even correct a few mistakes.
 	
-1.22 - Mon Dec 22, 2008
-	o Added get_error method for http://rt.cpan.org/Ticket/Display.html?id=41824
+2.00_03 - Fri Jan 9, 2009
+	o Add Net::Identica which wraps a Net::Twitter object and sets the default connection to identi.ca
+	o Fix show_user argument handling which was broken to this point
+	o Add full search API
+	o Trap errors in JSON decoding when Twitter returns a 200 Success, preventing JSON::Any from die-ing
+	o Various POD fixes and updates
 	
-1.21 - Tue Dec 16, 2008
-	o Applied patch from Marc Mims to add useragent_class to new()
-	o Applied patch from Marc Mims to fix bad JSON from twitter in relationship_exists
+2.00_02 - Wed Jan 7, 2009
+	o Applied http://github.com/semifor/net-twitter/commit/34b042f653d3c9c39f0003504070b4014da7d854
+	o Applied logic from patch to 1.xx by Chris Nelson to prevent bad JSON from 
+		causing JSON::Any to die. JSON errors should now gracefully return undef.
+	o POD change, spurious h in the URL for rt.cpan.org
+	o Updated copyright to 2009
+	o Add IRC and other contact info.
 
-1.20 - Mon Dec 15, 2008
-	o Man I'm good. Missed a patch before bundling up the dist.
-	o Fixes problem with relationship_exists from http://rt.cpan.org/Ticket/Display.html?id=41667
-	o Never release while on cold medication. Somehow I broke POD again for 1.19.
-	
-1.19 - Mon Dec 15, 2008
-	o Fixed bad POD coverage.
-	o Removed deprecated methods.
-	o Why are even numbered releases always broken for me?
-	
-1.18 - Mon Dec 15, 2008
-    o Brought up to date with twitter API specification.
-	o Removed "since_id" from public_timeline
-	o added "in_reply_to_status_id" to update
-	o added "since" and "since_id" to replies
-	o added "since" to friends
-	o removed the "featured" method.
-	o removed previously undocumented "lite" parameter from followers
-	     and enabled "page".
-	o added "follow" argument to create_friend
-	o removed archive
-	o update_location method is now deprecated, use update_profile.
-	o added update_profile, update_profile_colors, update_profile_image and
-	     update_profile_background_image methods
-	o documentation cleanup
+2.00_01 - Mon Dec 22, 2008
+	o From scratch redo. All the old code is gone and replaced with new.
+	o Changes against 1.xx include:
+		o identica quick switch to new() to set identi.ca connect info
+		o Full arg validation. This can be bypassed.
+		o All methods are now generated dynamically from a lookup 
+		  table at runtime.
+		
+For changes in the 1.xx series, please see:
 
-1.17 - Tue Aug 12, 2008
-	o For some reason OSX is creating bad packages, which work fine on OSX
-          and fail elsewhere. This one was packaged on Linux and should work.
+http://search.cpan.org/src/CTHOM/Net-Twitter-1.23/Changes
 
-1.16 - Tue Aug 12, 2008
-	o For old times sake, I released 1.15 broken. Temp files from textmate 
-	  made their way into the dist, which breaks make test. The best part is
-	  it did so in a way that made all my tests pass. Good Times. 1.16 is
-	  functionally equivalent to 1.15, just with the files removed.
-
-1.15 - Mon Aug 11, 2008
-	o Twitter is now requiring POST for some request and failing GET
-          requests, for whatever reason. Changed requests to use post for
-          those.
-	o Update args to friends_timeline and user_timeline for July 7 API changes
-	o Add rate_limit_status
-	
-1.14 - Wed Jun 11, 2008
-        o Minor POD corrections. The documentation for user_timeline and
-          friends_timeline did not correctly indicate that they're limited
-	  to tweets for the past 24 hours.
-        o Changed POD to address http://annocpan.org/~CTHOM/Net-Twitter-1.13/lib/Net/Twitter.pm#note_1922
-        o This release is solely a cleanup, in anticipation of handing off
-          maintenance of the module.
-
-1.13 - Tue May 13, 2008
-	o 1.12 had a POD error that caused make test to fail, which it
-	  didn't do on my box because Ubuntu perl doesn't have
-	  Test::Pod::Coverage. Mea Culpa.
-
-1.12 - Mon May 12, 2008
-	o Fixed internals so that the useragent is actually sent if
-	  modified in new().
-          -- Found by Ryo Okamoto
-	o Brought current with API as of April 29. Added archive(),
-	  update_location(), update_delivery_device(), create_block(),
- 	  destroy_block(), test(), and downtime_schedule().
-	o Fixed boneheaded documentation error in place since 1.06 where the
-	  "friends"/"followers" terminology change listed which was
-	  deprecated backwards.
-	o Reorganized documentation so that similar methods are grouped
-	  together, and each group is labeled.
-
-1.11 - Wed Apr 23, 2008
-        o Fixed Missing response_code and response_method on user_timeline
-          -- Found by Roger Linder.
-        o Fixed file perms on README and Twitter.pm re: bug 35344
-
-1.10 - Wed Apr 16, 2008
-        o Added "user" and "pass" aliases to new() for less verbose inline use.
-
-1.09 - Sun Mar 16, 2008
-	o Turns out I'm a moron and like to release stuff with debug code in it.
-	  This release fixes http://rt.cpan.org/Public/Bug/Display.html?id=34122
-	
-1.08 - Sun Feb 17, 2008
-	o Never release late at night. There is a POD error in 1.07 that 
-	  prevents make test from working. This fixes it.
-
-1.07 - Sat Feb 16, 2008
-	o Added support for the "source" arg to the update item, allowing a
-	  script to have its tweets show up as "from SomeWidget" instead of
-	  "from web"
-	o Because of this, a Net::Twitter source code was requested from Twitter
-	  and all tweets will now show up as "from Perl Net::Twitter".
-	o Added http_code and http_message to allow the retrieval of the HTTP
-	  response after each request.
-	o Brought API up to date as of Feb 13.
-
-1.06 - Mon Aug 6, 2007
-	o Added support for retrieving and updating location information
-	  from http://www.twittervision.com.
-	o Deprecated all "friend/friends" language to match twitter.com
-      terminology change as of July 19. new terminology is "follow/following".
-	  See:
-	  http://twitter.com/blog/2007/07/friends-followers-and-notifications.html
-	o Fixed POD errors which were causing the automatic CPANtesters to
-	  have fits.
-
-1.05 - Thu Aug 2, 2007
-	o After much delay, Net::Twitter now supports the full Twitter API,
-	  including replies, direct_messages, and all the rest.
-
-1.04 - Fri Mar 23, 2007
-	o Changed module dependencies, now requires JSON::Any, instead of a
-	  direct requirement of a JSON parsing module.
-
-1.03 - 	Tue Mar 20, 2007
-	o added $self->credentials() to allow changing user/pass to attach to
-	  without having to create mulitple objects. This is especially 
-	  helpful with POE Wheels.
-	o Cleaned up documentation.
-	o Added note about the twitter account for Net::Twitter itself
-	  at http://twitter.com/net_twitter
-
-1.02 - 	Thu Mar 08, 2007
-	o Fixed Makefile.PL to remove leftover require of version
-	o It's "perigrin", not "peregrin"
-	o Added PREREQ for JSON. JSON::Syck is highly recommended though.
-	o Changed version scheme from three segments to two, I never
-	  wanted three digits to begin with, but Module::Build did it
-	  without asking.
-
-1.0.1 - Wed Mar 07, 2007
-	o Removed dependancy on Module::Build and version
-	o Added code from Chris Prather to fall back to pure
-	  perl JSON if JSON::Syck is not found.
-	o Fixed POD inconsistencies.
-	o Added apiurl, apihost and apirealm config options to new
-
-1.0.0 - Wed Mar 07, 2007
-	o First Release
