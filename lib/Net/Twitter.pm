@@ -625,10 +625,15 @@ BEGIN {
             }
 
             ### Send the LWP request
-            my $uri = URI->new($url);
-            $uri->query_form($args);
-
-            my $req = $self->{ua}->request( HTTP::Request->new( $reqtype, $uri ) );
+            my $req;
+            if ( $reqtype eq 'POST' ) {
+                $req = $self->{ua}->post($url, $args);
+            }
+            else {
+                my $uri = URI->new($url);
+                $uri->query_form($args);
+                $req = $self->{ua}->get($uri);
+            }
 
             $self->{response_code}    = $req->code;
             $self->{response_message} = $req->message;
