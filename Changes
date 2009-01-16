@@ -1,5 +1,11 @@
 Revision history for Net-Twitter
 
+2.01 - Fri Jan 16, 2009
+	o Add back in the inexplicably missing update_twittervision
+	o Fixed several errors with methods that can take a single arg, not a hashref. This has to happen
+		for back compat with 1.xx
+	o Patch from semifor to fix args handling on GET methods. It worked but was semantically wrong.
+	
 2.00 - Thu Jan 15, 2009
 	o Final release including all of the below.
 	o Differences since 2.00_05
