@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Net-Twitter
-version:            1.20
+version:            2.00
 abstract:           Perl interface to twitter.com
 author:
     - Chris Thompson <cpan@cthompson.com>
@@ -9,7 +9,7 @@ distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    JSON::Any:       0
+    JSON::Any:       1.19
     LWP::UserAgent:  0
     Test::More:      0
     URI::Escape:     0

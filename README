@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.00_05
+    This document describes Net::Twitter version 2.00
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -11,11 +11,23 @@ SYNOPSIS
 
        my $twit = Net::Twitter->new(username=>"myuser", password=>"mypass" );
 
-       $result = $twit->update(status => "My current Status");
+       my $result = $twit->update(status => "My current Status");
 
-       $twit->credentials("otheruser", "otherpass");
+       my $twit->credentials("otheruser", "otherpass");
 
-       $result = $twit->update(status => "Status for otheruser");
+       my $result = $twit->update(status => "Status for otheruser");
+
+       my $result = $twitter->search('Albi the racist dragon');
+
+       foreach my $tweet (@{ $results }) {
+         my $speaker =  $tweet->{from_user};
+         my $text = $tweet->{text};
+         my $time = $tweet->{created_at};
+         print "$time <$speaker> $text\n";
+       }
+
+        my $steve = $twitter->search('Steve');
+        $twitter->update($steve .'? Who is steve?');
 
 DESCRIPTION
     http://www.twitter.com provides a web 2.0 type of ubiquitous presence.
@@ -132,6 +144,13 @@ DESCRIPTION
             caller. Passing a boolean true value for die_on_validation to
             new() will change this behavior to simply executing a die() with
             the appropriate error message. This defaults to false.
+
+    "clone()"
+        Returns a shallow copy of the Net::Twitter object. This can be used
+        when Net::Twitter is used in a Parallel or Asynchronous framework to
+        enable easier access to returned error values. All clones share the
+        same LWP::UserAgent object, so calling "credentials()" will change
+        the login credentials of all clones.
 
     "credentials($username, $password, $apihost, $apiurl)"
         Change the credentials for logging into twitter. This is helpful
@@ -552,7 +571,7 @@ DESCRIPTION
 
   SEARCH
     As of version 2.00, Net::Twitter implements the search functionality of
-    Twitter.
+    Twitter, using code derived from Net::Twitter::Search by Brenda Wallace.
 
     "search()"
         Performs a search on http://search.twitter.com for your query

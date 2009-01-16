@@ -597,7 +597,7 @@ BEGIN {
                         next;
                     }
                     if ( ( $argname eq "id" ) and ($seen_id) ) {
-                        ### We've already handled id by putting it in the url, it doesn't 
+                        ### We've already handled id by putting it in the url, it doesn't
                         ### go in the args.
                         next;
                     }
@@ -731,6 +731,12 @@ OPTIONAL: Sets the User Agent header in the HTTP request. If omitted, this will 
 
 OPTIONAL: An L<LWP::UserAgent> compatible class, e.g., L<LWP::UserAgent::POE>.
 If omitted, this will default to L<LWP::UserAgent>.
+
+=item C<no_fallback>
+
+OPTIONAL: If a C<useragent_class> is specified but fails to load, the default behavior is
+to warn and fall back to using regular L<LWP::UserAgent>. If C<no_fallback> is set to a boolean true
+value, the C<new> method will cause the code to C<die>
 
 =item C<source>
 
