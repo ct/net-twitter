@@ -552,8 +552,15 @@ BEGIN {
                     $single_arg = "status";
                 } elsif ( $whoami eq "replies" ) {
                     $single_arg = "page";
-                } elsif ( $whoami =~ m/friends\b|show_user|create_friend|destroy_friend/ ) {
+                } elsif ( $whoami =~ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message/) {
                     $single_arg = "id";
+                } elsif ( $whoami =~ m/update_profile_image|update_profile_background_image/ ) {
+                    $single_arg = "image";
+                } elsif ( $whoami eq "update_delivery_device" ) {
+                    $single_arg = "device";
+                } elsif ( $whoami eq "update_location" ) {
+                    $single_arg = "location";
+
                 } else {
                     ### $args is not a hashref and $whoami is not one of the legacy
                     ### subs, so we punt.
@@ -654,9 +661,8 @@ BEGIN {
             ### Send the LWP request
             my $req;
             if ( $reqtype eq 'POST' ) {
-                $req = $self->{ua}->post($url, $args);
-            }
-            else {
+                $req = $self->{ua}->post( $url, $args );
+            } else {
                 my $uri = URI->new($url);
                 $uri->query_form($args);
                 $req = $self->{ua}->get($uri);
