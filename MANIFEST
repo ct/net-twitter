@@ -2,6 +2,7 @@ Changes
 examples/setstatus.pl
 lib/Net/Identica.pm
 lib/Net/Twitter.pm
+lib/Net/Twitter/Search.pm
 Makefile.PL
 MANIFEST
 META.yml

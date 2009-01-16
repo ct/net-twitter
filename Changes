@@ -1,5 +1,13 @@
 Revision history for Net-Twitter
 
+2.00 - Thu Jan 15, 2009
+	o Final release including all of the below.
+	o Differences since 2.00_05
+		o Added Net::Twitter::Search stub file to act as a wrapper.
+		o Added clone() method
+		o More POD cleanup.
+		o Switched from die/warn to Carp::carp/croak
+
 2.00_05 - Mon Jan 12, 2009
 	o 2.00_04 had a glaring error that prevented anything that used an HTTP POST, like update(), from
 		actually, you know, POSTing.
