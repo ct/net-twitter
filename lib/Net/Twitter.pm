@@ -138,10 +138,9 @@ sub http_message {
 }
 
 sub search {
-    my $self      = shift;
-    my $args      = shift;
-    my $finalargs = "";
-    my $url       = $self->{searchapiurl} . "?";
+    my $self = shift;
+    my $args = shift;
+    my $url  = $self->{searchapiurl} . "?";
     my $retval;
 
     ### Return if no args specified.
@@ -189,6 +188,7 @@ sub search {
         next unless defined $args->{$argname};
         $url .= "&" unless substr( $url, -1 ) eq "?";
         $url .= $argname . "=" . uri_escape( $args->{$argname} );
+        
     }
     ### Make the request, store the results.
 
@@ -597,6 +597,8 @@ BEGIN {
                         next;
                     }
                     if ( ( $argname eq "id" ) and ($seen_id) ) {
+                        ### We've already handled id by putting it in the url, it doesn't 
+                        ### go in the args.
                         next;
                     }
                     if ( !$self->{skip_arg_validation} ) {
@@ -814,8 +816,8 @@ defaults to false.
 
 =item C<clone()>
 
-Returns a clone of the Net::Twitter object. This can be used when Net::Twitter is used in a Parallel
-or Asynchronous framework to enable easier access to returned error values. All clones share
+Returns a shallow copy of the Net::Twitter object. This can be used when Net::Twitter is used in 
+a Parallel or Asynchronous framework to enable easier access to returned error values. All clones share
 the same LWP::UserAgent object, so calling C<credentials()> will change the login credentials of all
 clones.
 
@@ -1397,7 +1399,8 @@ Returns a hashref containing the user information for the blocked user when succ
  
 =head2 SEARCH
 
-As of version 2.00, Net::Twitter implements the search functionality of Twitter.
+As of version 2.00, Net::Twitter implements the search functionality of Twitter,
+using code derived from Net::Twitter::Search by Brenda Wallace.
 
 =over
 
