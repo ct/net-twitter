@@ -6,12 +6,12 @@
 
 package Net::Twitter;
 $VERSION = "2.00";
-use warnings;
 use strict;
 
 use URI::Escape;
 use JSON::Any 1.19;
 use LWP::UserAgent;
+use Carp;
 
 sub new {
     my $class = shift;
@@ -53,10 +53,10 @@ sub new {
     if ($@) {
 
         if ( ( defined $conf{no_fallback} ) and ( $conf{no_fallback} ) ) {
-            die $conf{useragent_class} . " failed to load, and no_fallback enabled. Terminating.";
+            croak $conf{useragent_class} . " failed to load, and no_fallback enabled. Terminating.";
         }
 
-        warn $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
+        carp $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
         $conf{useragent_class} = "LWP::UserAgent";
     }
 
@@ -145,7 +145,7 @@ sub search {
 
     ### Return if no args specified.
     if ( !defined($args) ) {
-        warn "No query string specified";
+        carp "No query string specified";
         return undef;
     }
 
@@ -161,7 +161,7 @@ sub search {
 
     if ( defined $args->{query} ) {
         if ( defined $args->{q} ) {
-            warn "Both 'q' and 'query' specified, using value of 'query'.";
+            carp "Both 'q' and 'query' specified, using value of 'query'.";
         }
         $args->{q} = delete( $args->{query} );
     }
@@ -173,8 +173,8 @@ sub search {
     my $otherargs = shift;
     if ( ref($otherargs) eq "HASH" ) {
         if ( ( defined $otherargs->{q} ) || ( defined $otherargs->{query} ) ) {
-            warn "Specifed a query both as a plain text first arg and in the hashref second arg.";
-            warn "Using query from first arg";
+            carp "Specifed a query both as a plain text first arg and in the hashref second arg.";
+            carp "Using query from first arg";
         }
         $otherargs->{"q"} = $args->{"q"};
         $args = $otherargs;
@@ -188,7 +188,7 @@ sub search {
         next unless defined $args->{$argname};
         $url .= "&" unless substr( $url, -1 ) eq "?";
         $url .= $argname . "=" . uri_escape( $args->{$argname} );
-        
+
     }
     ### Make the request, store the results.
 
@@ -504,9 +504,9 @@ BEGIN {
             ### Check if no args sent and args are required.
             if ( ( !defined $args ) && ( !$method_def->{blankargs} ) ) {
                 if ( $self->{die_on_validation} ) {
-                    die "The method $whoami requires arguments and none specified. Terminating.";
+                    croak "The method $whoami requires arguments and none specified. Terminating.";
                 } else {
-                    warn "The method $whoami requires arguments and none specified. Discarding request";
+                    carp "The method $whoami requires arguments and none specified. Discarding request";
                     $self->{response_error} = {
                         "request" => $url,
                         "error"   => "The method $whoami requires arguments and none specified."
@@ -531,9 +531,9 @@ BEGIN {
                     ### $args is not a hashref and $whoami is not one of the legacy
                     ### subs, so we punt.
                     if ( $self->{die_on_validation} ) {
-                        die "Argument is not a HASHREF. Terminating.";
+                        croak "Argument is not a HASHREF. Terminating.";
                     } else {
-                        warn "Argument is not a HASHREF. Discarding request";
+                        carp "Argument is not a HASHREF. Discarding request";
                         $self->{response_error} = {
                             "request" => $url,
                             "error"   => "Argument is not a HASHREF."
@@ -561,7 +561,7 @@ BEGIN {
                     ### show_user requires either id or email, this workaround checks that email is
                     ### passed if id is not.
                     if ( !defined $args->{email} ) {
-                        warn "Either id or email is required by show_user, discarding request.";
+                        carp "Either id or email is required by show_user, discarding request.";
                         $self->{response_error} = {
                             "request" => $method_def->{uri},
                             "error"   => "Either id or email is required by show_user, discarding request.",
@@ -574,7 +574,7 @@ BEGIN {
                     ### tack on .json, otherwise warn and return undef
 
                     if ( $method_def->{args}->{id} ) {
-                        warn "The field id is required and not specified";
+                        carp "The field id is required and not specified";
                         $self->{response_error} = {
                             "request" => $method_def->{uri},
                             "error"   => "The field id is required and not specified",
@@ -607,9 +607,9 @@ BEGIN {
                             and ( !defined $args->{$argname} ) )
                         {
                             if ( $self->{die_on_validation} ) {
-                                die "The field $argname is required and not specified. Terminating.";
+                                croak "The field $argname is required and not specified. Terminating.";
                             } else {
-                                warn "The field $argname is required and not specified, discarding request.";
+                                carp "The field $argname is required and not specified, discarding request.";
                                 $self->{response_error} = {
                                     "request" => $url,
                                     "error"   => "The field $argname is required and not specified"
@@ -680,8 +680,9 @@ This document describes Net::Twitter version 2.00
    my $twit->credentials("otheruser", "otherpass");
 
    my $result = $twit->update(status => "Status for otheruser");
-   
+
    my $result = $twitter->search('Albi the racist dragon');
+
    foreach my $tweet (@{ $results }) {
      my $speaker =  $tweet->{from_user};
      my $text = $tweet->{text};
