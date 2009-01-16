@@ -525,7 +525,7 @@ BEGIN {
                     $single_arg = "status";
                 } elsif ( $whoami eq "replies" ) {
                     $single_arg = "page";
-                } elsif ( $whoami =~ m/friends\b|show_user|create_friend/ ) {
+                } elsif ( $whoami =~ m/friends\b|show_user|create_friend|destroy_friend/ ) {
                     $single_arg = "id";
                 } else {
                     ### $args is not a hashref and $whoami is not one of the legacy
