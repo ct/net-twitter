@@ -10,7 +10,7 @@ use warnings;
 use strict;
 
 use URI::Escape;
-use JSON::Any;
+use JSON::Any 1.19;
 use LWP::UserAgent;
 
 sub new {
