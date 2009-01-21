@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.01
+# v2.02
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.01";
+$VERSION = "2.02";
 use strict;
 
 use URI::Escape;
@@ -703,7 +703,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.01
+This document describes Net::Twitter version 2.02
 
 =head1 SYNOPSIS
 
