@@ -2,7 +2,6 @@
 use Carp;
 use strict;
 use Test::More tests => 26;
-use Data::Dumper;
 use Test::Exception;
 
 use lib qw(t/lib);
@@ -25,9 +24,6 @@ ok      $nt->friends_timeline,                        'friends_timeline no args'
 ok      $nt->friends_timeline({ bogus_arg => 1 }),    'unexpected args';
 ok      $nt->create_friend('flanders'),               'create_friend scalar arg';
 ok      $nt->create_friend({ id => 'flanders' }),     'create_friend hashref';
-
-diag($nt->get_error);
-
 ok      $nt->destroy_friend('flanders'),              'destroy_friend scalar arg';
 
 $nt->{ua}->success_content('true');

@@ -558,20 +558,20 @@ BEGIN {
                     my $user_b = shift;
                     $args = { "user_a" => $args, "user_b" => $user_b };
                 } elsif ( $whoami eq "update" ) {
-                    $args = {"status" => $args};
+                    $args = { "status" => $args };
                 } elsif ( $whoami eq "replies" ) {
-                    $args = {"page" => $args};
+                    $args = { "page" => $args };
                 } elsif ( $whoami =~
 m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message/
                   )
                 {
-                    $args = {"id" => $args};                    
+                    $args = { "id" => $args };
                 } elsif ( $whoami =~ m/update_profile_image|update_profile_background_image/ ) {
-                    $args = {"image" => $args};
+                    $args = { "image" => $args };
                 } elsif ( $whoami eq "update_delivery_device" ) {
-                    $args = {"device" => $args};
+                    $args = { "device" => $args };
                 } elsif ( $whoami eq "update_location" ) {
-                    $args = {"location" => $args};
+                    $args = { "location" => $args };
                 } else {
                     ### $args is not a hashref and $whoami is not one of the legacy
                     ### subs, so we punt.
@@ -666,6 +666,29 @@ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|de
 
                 }
 
+            }
+
+            ### Final Validation of $args, Drop args that are named but undefined, and complain when
+            ### bogus args are passed.
+
+            if ( !$self->{skip_arg_validation} ) {
+                foreach my $argkey ( sort keys %{$args} ) {
+                    if ( !defined $args->{$argkey} ) {
+                        carp "Argument $argkey specified as undef, discarding.";
+                        $self->{response_error} = {
+                            "request" => $url,
+                            "error"   => "Argument $argkey specified as undef."
+                        };
+                        delete $args->{$argkey};
+                    } elsif ( ! $method_def->{args}->{$argkey} ) {
+                        carp "Unknown argument $argkey passed, discarding.";
+                        $self->{response_error} = {
+                            "request" => $url,
+                            "error"   => "Unknown argument $argkey passed."
+                        };
+                    }
+                    delete $args->{$argkey};
+                }
             }
 
             ### Send the LWP request
