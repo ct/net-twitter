@@ -288,6 +288,7 @@ sub _twitter_rest_api {
     my ($self, $method, $uri, $args) = @_;
 
     my ($path, $id) = eval { $self->_parse_path_id($uri) };
+
     return $self->_error_response(400, chomp $@) if $@;
 
     my $api_entry = $twitter_api{$path}
@@ -387,3 +388,4 @@ sub clear_success_content {
 }
 
 1;
+

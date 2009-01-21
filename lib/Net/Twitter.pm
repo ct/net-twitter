@@ -680,14 +680,14 @@ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|de
                             "error"   => "Argument $argkey specified as undef."
                         };
                         delete $args->{$argkey};
-                    } elsif ( ! $method_def->{args}->{$argkey} ) {
+                    } elsif ( ! exists $method_def->{args}->{$argkey} ) {
                         carp "Unknown argument $argkey passed, discarding.";
                         $self->{response_error} = {
                             "request" => $url,
                             "error"   => "Unknown argument $argkey passed."
                         };
+	                    delete $args->{$argkey};
                     }
-                    delete $args->{$argkey};
                 }
             }
 
