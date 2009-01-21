@@ -868,6 +868,14 @@ listed below, and to return undef to the caller. Passing a boolean true value fo
 new() will change this behavior to simply executing a die() with the appropriate error message. This
 defaults to false.
 
+=item C<arrayref_on_error>
+
+OPTIONAL: By default any methods which find an error, whether from twitter or from bad args, will 
+return undef. Passing C<arrayref_on_error> as a boolean TRUE to new() will cause all error states to
+return an empty arrayref instead. As most successful responses are in the form of arrayrefs, this will
+cause a uniform response type for all calls. All error messages and codes are still available with
+methods such as C<get_error>.
+
 =back
 
 =item C<clone()>
