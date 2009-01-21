@@ -554,23 +554,24 @@ BEGIN {
             ### different defaults, use a bit of logic to stick the value in the right place.
 
             if ( ( !ref($args) ) && ( defined $args ) ) {
-                my $single_arg;
-                if ( $whoami eq "update" ) {
-                    $single_arg = "status";
+                if ( $whoami eq "relationship_exists" ) {
+                    my $user_b = shift;
+                    $args = { "user_a" => $args, "user_b" => $user_b };
+                } elsif ( $whoami eq "update" ) {
+                    $args = {"status" => $args};
                 } elsif ( $whoami eq "replies" ) {
-                    $single_arg = "page";
+                    $args = {"page" => $args};
                 } elsif ( $whoami =~
 m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message/
                   )
                 {
-                    $single_arg = "id";
+                    $args = {"id" => $args};                    
                 } elsif ( $whoami =~ m/update_profile_image|update_profile_background_image/ ) {
-                    $single_arg = "image";
+                    $args = {"image" => $args};
                 } elsif ( $whoami eq "update_delivery_device" ) {
-                    $single_arg = "device";
+                    $args = {"device" => $args};
                 } elsif ( $whoami eq "update_location" ) {
-                    $single_arg = "location";
-
+                    $args = {"location" => $args};
                 } else {
                     ### $args is not a hashref and $whoami is not one of the legacy
                     ### subs, so we punt.
@@ -585,7 +586,6 @@ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|de
                     }
                     return $self->{error_return_val};
                 }
-                $args = { $single_arg => $args };
             }
 
             ### Handle source arg for update method.
