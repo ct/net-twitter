@@ -98,6 +98,9 @@ sub new {
     $conf{skip_arg_validation} = 0 unless defined $conf{skip_arg_validation};
     $conf{die_on_validation}   = 0 unless defined $conf{die_on_validation};
 
+    $conf{error_return_val} =
+      ( ( defined $conf{arrayref_on_error} ) and ( $conf{arrayref_on_error} ) ) ? [] : undef;
+
     $conf{response_error}  = undef;
     $conf{response_code}   = undef;
     $conf{response_method} = undef;
@@ -109,7 +112,10 @@ sub new {
 ### Parallel/Async setups like POE. Set response_error to undef to prevent
 ### spillover, just in case.
 
-sub clone { bless { %{ $_[0] }, response_error => undef } }
+sub clone {
+    my $self = shift;
+    bless { %{$self}, response_error => $self->{error_return_val} };
+}
 
 ### Change the credentials
 
@@ -140,23 +146,23 @@ sub http_message {
 sub update_twittervision {
     my ( $self, $location ) = @_;
     my $response;
- 
+
     if ( $self->{twittervision} ) {
-        my $tvreq = $self->{tvua}->post(
-            $self->{tvurl} . "/user/update_location.json",
-            [ location => uri_escape($location) ]
-        );
+        my $tvreq =
+          $self->{tvua}
+          ->post( $self->{tvurl} . "/user/update_location.json", [ location => uri_escape($location) ] );
         if ( $tvreq->content ne "User not found" ) {
             $self->{response_code}    = $tvreq->code;
             $self->{response_message} = $tvreq->message;
             $self->{response_error}   = $tvreq->content;
-            
+
             if ( $tvreq->is_success ) {
                 $response = eval { JSON::Any->jsonToObj( $tvreq->content ) };
 
                 if ( !defined $response ) {
                     $self->{response_error} =
-                      "TWITTERVISION RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $tvreq->content;
+                      "TWITTERVISION RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - "
+                      . $tvreq->content;
                 }
             }
         }
@@ -173,7 +179,7 @@ sub search {
     ### Return if no args specified.
     if ( !defined($args) ) {
         carp "No query string specified";
-        return undef;
+        return $self->{error_return_val};
     }
 
     ### If the first argument passed is a string, convert it into a hashref
@@ -238,6 +244,7 @@ sub search {
         if ( !defined $retval ) {
             $self->{response_error} =
               "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+            return $self->{error_return_val};
         }
     }
     return $retval;
@@ -539,7 +546,7 @@ BEGIN {
                         "error"   => "The method $whoami requires arguments and none specified."
                     };
                 }
-                return undef;
+                return $self->{error_return_val};
             }
 
             ### For backwards compatibility we need to handle the user handing a single, scalar
@@ -552,7 +559,10 @@ BEGIN {
                     $single_arg = "status";
                 } elsif ( $whoami eq "replies" ) {
                     $single_arg = "page";
-                } elsif ( $whoami =~ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message/) {
+                } elsif ( $whoami =~
+m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message/
+                  )
+                {
                     $single_arg = "id";
                 } elsif ( $whoami =~ m/update_profile_image|update_profile_background_image/ ) {
                     $single_arg = "image";
@@ -573,7 +583,7 @@ BEGIN {
                             "error"   => "Argument is not a HASHREF."
                         };
                     }
-                    return undef;
+                    return $self->{error_return_val};
                 }
                 $args = { $single_arg => $args };
             }
@@ -600,7 +610,7 @@ BEGIN {
                             "request" => $method_def->{uri},
                             "error"   => "Either id or email is required by show_user, discarding request.",
                         };
-                        return undef;
+                        return $self->{error_return_val};
                     }
                 } else {
 
@@ -613,7 +623,7 @@ BEGIN {
                             "request" => $method_def->{uri},
                             "error"   => "The field id is required and not specified",
                         };
-                        return undef;
+                        return $self->{error_return_val};
                     } else {
                         $url .= $method_def->{uri} . ".json";
                     }
@@ -649,7 +659,7 @@ BEGIN {
                                     "error"   => "The field $argname is required and not specified"
                                 };
                             }
-                            return undef;
+                            return $self->{error_return_val};
                         }
 
                     }
@@ -685,6 +695,7 @@ BEGIN {
                 if ( !defined $retval ) {
                     $self->{response_error} =
                       "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+                    return $self->{error_return_val};
                 }
             }
 
