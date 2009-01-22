@@ -1,5 +1,10 @@
 Revision history for Net-Twitter
 
+2.02 - Thu Jan 22, 2009
+	o Add arrayref_on_error switch at the suggestion of Ryan Rose. Changes default return value on error.
+	o Added regression test suite by Marc Mims, hopefully no more crappy releases missing things.
+	o Fixed several bugs in arg handling and validation to make it work correctly. Should now be 100%
+
 2.01 - Fri Jan 16, 2009
 	o Add back in the inexplicably missing update_twittervision
 	o Fixed several errors with methods that can take a single arg, not a hashref. This has to happen
