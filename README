@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.01
+    This document describes Net::Twitter version 2.02
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -150,6 +150,15 @@ DESCRIPTION
             caller. Passing a boolean true value for die_on_validation to
             new() will change this behavior to simply executing a die() with
             the appropriate error message. This defaults to false.
+
+        "arrayref_on_error"
+            OPTIONAL: By default any methods which find an error, whether
+            from twitter or from bad args, will return undef. Passing
+            "arrayref_on_error" as a boolean TRUE to new() will cause all
+            error states to return an empty arrayref instead. As most
+            successful responses are in the form of arrayrefs, this will
+            cause a uniform response type for all calls. All error messages
+            and codes are still available with methods such as "get_error".
 
     "clone()"
         Returns a shallow copy of the Net::Twitter object. This can be used
