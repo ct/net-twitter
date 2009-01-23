@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.02
+# v2.03
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.02";
+$VERSION = "2.03";
 use strict;
 
 use URI::Escape;
@@ -39,7 +39,7 @@ sub new {
       unless defined $conf{useragent};
     $conf{clientname} = 'Perl Net::Twitter'    unless defined $conf{clientname};
     $conf{clientver}  = $Net::Twitter::VERSION unless defined $conf{clientver};
-    $conf{clienturl}  = "http://x4.net/twitter/meta.xml"
+    $conf{clienturl}  = "http://www.net-twitter.info";
       unless defined $conf{clienturl};
     $conf{source} = 'twitterpm'
       unless defined $conf{source};    ### Make it say "From Net:Twitter"
@@ -737,7 +737,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.02
+This document describes Net::Twitter version 2.03
 
 =head1 SYNOPSIS
 
@@ -836,8 +836,7 @@ the current Net::Twitter version, $Net::Twitter::VERSION.
 =item C<clienturl>
 
 OPTIONAL: Sets the X-Twitter-Client-URL: HTTP Header. If omitted, this defaults to
-C<http://x4.net/Net-Twitter/meta.xml>. By standard, this file should be in XML format, as at the
-default location.
+C<http://www.net-twitter.info>.
 
 =item C<apiurl>
 

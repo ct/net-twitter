@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Identica - Perl OO interface to www.identi.ca
-# v2.01
+# v2.03
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Identica;
-$VERSION = "2.01";
+$VERSION = "2.03";
 use warnings;
 
 use Net::Twitter;
@@ -33,7 +33,7 @@ Net::Identica - Perl interface to identi.ca
 
 =head1 VERSION
 
-This document describes Net::Identica version 2.01
+This document describes Net::Identica version 2.03
 
 =head1 SYNOPSIS
 
