@@ -8,5 +8,7 @@ MANIFEST
 META.yml
 README
 t/00.load.t
+t/01_api.t
+t/lib/TestUA.pm
 t/pod-coverage.t
 t/pod.t
