@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.02
+    This document describes Net::Twitter version 2.03
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -93,9 +93,7 @@ DESCRIPTION
 
         "clienturl"
             OPTIONAL: Sets the X-Twitter-Client-URL: HTTP Header. If
-            omitted, this defaults to "http://x4.net/Net-Twitter/meta.xml".
-            By standard, this file should be in XML format, as at the
-            default location.
+            omitted, this defaults to "http://www.net-twitter.info".
 
         "apiurl"
             OPTIONAL. The URL of the API for twitter.com. This defaults to

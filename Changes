@@ -1,5 +1,9 @@
 Revision history for Net-Twitter
 
+2.03 - Thu Jan 22, 2009
+	o Bad MANIFEST kept the regression tests out of the 2.02 distribution.
+	o Change clienturl to default to http://www.net-twitter.info and removed pointless XML warning.
+	
 2.02 - Thu Jan 22, 2009
 	o Add arrayref_on_error switch at the suggestion of Ryan Rose. Changes default return value on error.
 	o Added regression test suite by Marc Mims, hopefully no more crappy releases missing things.

@@ -19,7 +19,7 @@ no_index:
         - inc
 resources:
 	license: http://dev.perl.org/licenses/
-	homepage: http://search.cpan.org/dist/Net-Twitter/
+	homepage: http://www.net-twitter.info
 	bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Net-Twitter
 	repository: git://github.com/ct/net-twitter.git
 generated_by:       ExtUtils::MakeMaker version 6.46
