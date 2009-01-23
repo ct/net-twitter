@@ -37,11 +37,11 @@ sub new {
     ### Set useragents, HTTP Headers, source codes.
     $conf{useragent} = "Net::Twitter/$Net::Twitter::VERSION (PERL)"
       unless defined $conf{useragent};
-    $conf{clientname} = 'Perl Net::Twitter'    unless defined $conf{clientname};
-    $conf{clientver}  = $Net::Twitter::VERSION unless defined $conf{clientver};
-    $conf{clienturl}  = "http://www.net-twitter.info";
-      unless defined $conf{clienturl};
-    $conf{source} = 'twitterpm'
+    $conf{clientname} = 'Perl Net::Twitter'           unless defined $conf{clientname};
+    $conf{clientver}  = $Net::Twitter::VERSION        unless defined $conf{clientver};
+    $conf{clienturl}  = "http://www.net-twitter.info" unless defined $conf{clienturl};
+
+    $conf{source}     = 'twitterpm'
       unless defined $conf{source};    ### Make it say "From Net:Twitter"
 
     ### Allow specifying a class other than LWP::UA
@@ -680,13 +680,13 @@ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|de
                             "error"   => "Argument $argkey specified as undef."
                         };
                         delete $args->{$argkey};
-                    } elsif ( ! exists $method_def->{args}->{$argkey} ) {
+                    } elsif ( !exists $method_def->{args}->{$argkey} ) {
                         carp "Unknown argument $argkey passed, discarding.";
                         $self->{response_error} = {
                             "request" => $url,
                             "error"   => "Unknown argument $argkey passed."
                         };
-	                    delete $args->{$argkey};
+                        delete $args->{$argkey};
                     }
                 }
             }
