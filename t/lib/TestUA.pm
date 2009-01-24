@@ -91,6 +91,11 @@ my %twitter_api = (
             "id"    => 1,
             "email" => 1,
         },
+        required => sub {
+            my $args = shift;
+            # one, but not both
+            return (exists $args->{id} xor exists $args->{email});
+        },
     },
     "/direct_messages" => {
         "blankargs" => 1,
@@ -264,7 +269,10 @@ sub get {
 
     my $uri = URI->new($url);
     eval { $self->_validate_basic_url($uri) };
-    return $self->_error_response(400, chomp $@) if $@;
+    if ( my $error = $@ ) {
+        chomp $error;
+        return $self->_error_response(400, $error);
+    }
 
     # strip the args
     my %args = $uri->query_form;
@@ -297,14 +305,23 @@ sub _twitter_rest_api {
     # TODO: What if ID is passed in the URL and args? What if the 2 are different?
     $args->{id} = $id if $api_entry->{has_id} and defined $id;
 
+    $self->{_input_args} = { %$args }; # save a copy of input args for tests
+
     return $self->_error_response(400, "expected POST")
         if  $api_entry->{post} && $method ne 'POST';
     return $self->_error_response(400, "expected GET")
         if !$api_entry->{post} && $method ne 'GET';
 
-    my @required = grep { $api_entry->{args}{$_} } keys %{$api_entry->{args}};
-    if ( my @missing = grep { !exists $args->{$_} } @required ) {
-        return $self->_error_response(400, "requried args missing: @missing");
+    if ( my $coderef = $api_entry->{required} ) {
+        unless ( $coderef->($args) ) {
+            return $self->_error_response(400, "requried args test failed");
+        }
+    }
+    else {
+        my @required = grep { $api_entry->{args}{$_} } keys %{$api_entry->{args}};
+        if ( my @missing = grep { !exists $args->{$_} } @required ) {
+            return $self->_error_response(400, "requried args missing: @missing");
+        }
     }
 
     if ( my @undefined = grep { $args->{$_} eq '' } keys %$args ) {
@@ -387,5 +404,10 @@ sub clear_success_content {
     delete $self->{_success_content};
 }
 
-1;
+sub input_args {
+    my $self = shift;
 
+    return $self->{_input_args} || {};
+}
+
+1;
