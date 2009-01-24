@@ -1,5 +1,13 @@
 Revision history for Net-Twitter
 
+2.04 - Sat Jan 24, 2009
+	o More tweaks from Marc Mims on regression tests
+	o Reworked bad arg handling which caused subsequent calls of several methods to fail.
+	o Fixed issue with arg handling in show_status
+	o Removed Net::Twitter::Search until I can get assistance from Brenda, CPAN complains that I don't have
+		rights to the namespace and people are reporting problems finding 2.x because the index is off.
+	o Switch to using Module::Install
+
 2.03 - Thu Jan 22, 2009
 	o Bad MANIFEST kept the regression tests out of the 2.02 distribution.
 	o Change clienturl to default to http://www.net-twitter.info and removed pointless XML warning.
