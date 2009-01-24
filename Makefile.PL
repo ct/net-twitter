@@ -6,7 +6,8 @@ all_from       'lib/Net/Twitter.pm';
 
 requires 'LWP::UserAgent' => 0;
 requires 'URI::Escape'    => 0;
-requires 'Test::More'     => 0;
-requires 'JSON::Any'      => 1.19;
+requires 'JSON::Any'      => '1.19';
+
+test_requires 'Test::More'     => 0;
 
 WriteAll;
