@@ -562,7 +562,7 @@ BEGIN {
                 } elsif ( $whoami eq "replies" ) {
                     $args = { "page" => $args };
                 } elsif ( $whoami =~
-m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message/
+m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message|show_status/
                   )
                 {
                     $args = { "id" => $args };
@@ -596,9 +596,9 @@ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|de
 
             ### Create the URL. If it ends in /ID it needs the id param substituted
             ### into the URL and not as an arg.
-            if ( $method_def->{uri} =~ s|/ID|| ) {
+            if ( (my $uri = $method_def->{uri}) =~ s|/ID|| ) {
                 if ( defined $args->{id} ) {
-                    $url .= $method_def->{uri} . "/" . delete( $args->{id} ) . ".json";
+                    $url .= $uri . "/" . delete( $args->{id} ) . ".json";
                     $seen_id++;
                 } elsif ( $whoami eq "show_user" ) {
 
