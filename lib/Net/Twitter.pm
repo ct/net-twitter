@@ -6,6 +6,7 @@
 
 package Net::Twitter;
 $VERSION = "2.04";
+use 5.005;
 use strict;
 
 use URI::Escape;
