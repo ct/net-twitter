@@ -612,6 +612,7 @@ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|de
                         };
                         return $self->{error_return_val};
                     }
+                    $url .= "$uri.json";
                 } else {
 
                     ### No id field is found but may be optional. If so, skip id in the URL and just
