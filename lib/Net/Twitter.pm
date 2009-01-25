@@ -557,7 +557,25 @@ BEGIN {
             ### For backwards compatibility we need to handle the user handing a single, scalar
             ### arg in, instead of a hashref. Since the methods that allowed this in 1.xx have
             ### different defaults, use a bit of logic to stick the value in the right place.
-
+            my %idsubs = map { $_ => 1 } qw (
+                create_block
+                destroy_block
+                friends
+                show_user
+                create_friend
+                destroy_friend
+                destroy_direct_message
+                show_status
+                create_favorite
+                destroy_favorite
+                destroy_status
+                disable_notifications
+                enable_notifications
+                favorites
+                followers
+                user_timeline
+                );
+            
             if ( ( !ref($args) ) && ( defined $args ) ) {
                 if ( $whoami eq "relationship_exists" ) {
                     my $user_b = shift;
@@ -566,10 +584,7 @@ BEGIN {
                     $args = { "status" => $args };
                 } elsif ( $whoami eq "replies" ) {
                     $args = { "page" => $args };
-                } elsif ( $whoami =~
-m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|destroy_direct_message|show_status/
-                  )
-                {
+                } elsif ( exists $idsubs{$whoami} ) {
                     $args = { "id" => $args };
                 } elsif ( $whoami =~ m/update_profile_image|update_profile_background_image/ ) {
                     $args = { "image" => $args };
