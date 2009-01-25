@@ -42,7 +42,7 @@ sub new {
     $conf{clientver}  = $Net::Twitter::VERSION        unless defined $conf{clientver};
     $conf{clienturl}  = "http://www.net-twitter.info" unless defined $conf{clienturl};
 
-    $conf{source}     = 'twitterpm'
+    $conf{source} = 'twitterpm'
       unless defined $conf{source};    ### Make it say "From Net:Twitter"
 
     ### Allow specifying a class other than LWP::UA
@@ -254,267 +254,270 @@ sub search {
 ### Load method data into %apicalls at runtime.
 
 BEGIN {
-    my %apicalls = (
-        "public_timeline" => {
-            "blankargs" => 0,
-            "post"      => 0,
-            "uri"       => "/statuses/public_timeline",
-            "args"      => {},
-        },
-        "friends_timeline" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/statuses/friends_timeline",
-            "args"      => {
-                "since"    => 0,
-                "since_id" => 0,
-                "count"    => 0,
-                "page"     => 0,
+    sub _get_apicalls{
+        my $api = {
+            "public_timeline" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/statuses/public_timeline",
+                "args"      => {},
             },
-        },
-        "user_timeline" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/statuses/user_timeline/ID",
-            "args"      => {
-                "id"       => 0,
-                "since"    => 0,
-                "since_id" => 0,
-                "count"    => 0,
-                "page"     => 0,
+            "friends_timeline" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/statuses/friends_timeline",
+                "args"      => {
+                    "since"    => 0,
+                    "since_id" => 0,
+                    "count"    => 0,
+                    "page"     => 0,
+                },
             },
-        },
-        "show_status" => {
-            "blankargs" => 0,
-            "post"      => 0,
-            "uri"       => "/statuses/show/ID",
-            "args"      => { "id" => 1, },
-        },
-        "update" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/statuses/update",
-            "args"      => {
-                "status"                => 1,
-                "in_reply_to_status_id" => 0,
-                "source"                => 0,
+            "user_timeline" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/statuses/user_timeline/ID",
+                "args"      => {
+                    "id"       => 0,
+                    "since"    => 0,
+                    "since_id" => 0,
+                    "count"    => 0,
+                    "page"     => 0,
+                },
             },
-        },
-        "replies" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/statuses/replies",
-            "args"      => {
-                "page"     => 0,
-                "since"    => 0,
-                "since_id" => 0,
+            "show_status" => {
+                "blankargs" => 0,
+                "post"      => 0,
+                "uri"       => "/statuses/show/ID",
+                "args"      => { "id" => 1, },
             },
-        },
-        "destroy_status" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/statuses/destroy/ID",
-            "args"      => { "id" => 1, },
-        },
-        "friends" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/statuses/friends/ID",
-            "args"      => {
-                "id"    => 0,
-                "page"  => 0,
-                "since" => 0,
+            "update" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/statuses/update",
+                "args"      => {
+                    "status"                => 1,
+                    "in_reply_to_status_id" => 0,
+                    "source"                => 0,
+                },
             },
-        },
-        "followers" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/statuses/followers",
-            "args"      => {
-                "id"   => 0,
-                "page" => 0,
+            "replies" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/statuses/replies",
+                "args"      => {
+                    "page"     => 0,
+                    "since"    => 0,
+                    "since_id" => 0,
+                },
             },
-        },
-        "show_user" => {
-            "blankargs" => 0,
-            "post"      => 0,
-            "uri"       => "/users/show/ID",
-            "args"      => {
-                "id"    => 1,
-                "email" => 1,
+            "destroy_status" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/statuses/destroy/ID",
+                "args"      => { "id" => 1, },
             },
-        },
-        "direct_messages" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/direct_messages",
-            "args"      => {
-                "since"    => 0,
-                "since_id" => 0,
-                "page"     => 0,
+            "friends" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/statuses/friends/ID",
+                "args"      => {
+                    "id"    => 0,
+                    "page"  => 0,
+                    "since" => 0,
+                },
             },
-        },
-        "sent_direct_messages" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/direct_messages/sent",
-            "args"      => {
-                "since"    => 0,
-                "since_id" => 0,
-                "page"     => 0,
+            "followers" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/statuses/followers",
+                "args"      => {
+                    "id"   => 0,
+                    "page" => 0,
+                },
             },
-        },
-        "new_direct_message" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/direct_messages/new",
-            "args"      => {
-                "user" => 1,
-                "text" => 1,
+            "show_user" => {
+                "blankargs" => 0,
+                "post"      => 0,
+                "uri"       => "/users/show/ID",
+                "args"      => {
+                    "id"    => 1,
+                    "email" => 1,
+                },
             },
-        },
-        "destroy_direct_message" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/direct_messages/destroy/ID",
-            "args"      => { "id" => 1, },
-        },
-        "create_friend" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/friendships/create/ID",
-            "args"      => {
-                "id"     => 1,
-                "follow" => 0,
+            "direct_messages" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/direct_messages",
+                "args"      => {
+                    "since"    => 0,
+                    "since_id" => 0,
+                    "page"     => 0,
+                },
             },
-        },
-        "destroy_friend" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/friendships/destroy/ID",
-            "args"      => { "id" => 1, },
-        },
-        "relationship_exists" => {
-            "blankargs" => 0,
-            "post"      => 0,
-            "uri"       => "/friendships/exists",
-            "args"      => {
-                "user_a" => 1,
-                "user_b" => 1,
+            "sent_direct_messages" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/direct_messages/sent",
+                "args"      => {
+                    "since"    => 0,
+                    "since_id" => 0,
+                    "page"     => 0,
+                },
             },
-        },
-        "verify_credentials" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/account/verify_credentials",
-            "args"      => {},
-        },
-        "end_session" => {
-            "blankargs" => 1,
-            "post"      => 1,
-            "uri"       => "/account/end_session",
-            "args"      => {},
-        },
-        "update_profile_colors" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/account/update_profile_colors",
-            "args"      => {
-                "profile_background_color"     => 0,
-                "profile_text_color"           => 0,
-                "profile_link_color"           => 0,
-                "profile_sidebar_fill_color"   => 0,
-                "profile_sidebar_border_color" => 0,
+            "new_direct_message" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/direct_messages/new",
+                "args"      => {
+                    "user" => 1,
+                    "text" => 1,
+                },
             },
-        },
-        "update_profile_image" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/account/update_profile_image",
-            "args"      => { "image" => 1, },
-        },
-        "update_profile_background_image" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/account/update_profile_background_image",
-            "args"      => { "image" => 1, },
-        },
-        "update_delivery_device" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/account/update_delivery_device",
-            "args"      => { "device" => 1, },
-        },
-        "rate_limit_status" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/account/rate_limit_status",
-            "args"      => {},
-        },
-        "favorites" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/favorites",
-            "args"      => {
-                "id"   => 0,
-                "page" => 0,
+            "destroy_direct_message" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/direct_messages/destroy/ID",
+                "args"      => { "id" => 1, },
             },
-        },
-        "create_favorite" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/favorites/create/ID",
-            "args"      => { "id" => 1, },
-        },
-        "destroy_favorite" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/favorites/destroy/ID",
-            "args"      => { "id" => 1, },
-        },
-        "enable_notifications" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/notifications/follow/ID",
-            "args"      => { "id" => 1, },
-        },
-        "disable_notifications" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/notifications/leave/ID",
-            "args"      => { "id" => 1, },
-        },
-        "create_block" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/blocks/create/ID",
-            "args"      => { "id" => 1, },
-        },
-        "destroy_block" => {
-            "blankargs" => 0,
-            "post"      => 1,
-            "uri"       => "/blocks/destroy/ID",
-            "args"      => { "id" => 1, },
-        },
-        "test" => {
-            "blankargs" => 1,
-            "post"      => 0,
-            "uri"       => "/help/test",
-            "args"      => {},
-        },
-        "downtime_schedule" => {
-            "blankargs" => 100,
-            "post"      => 0,
-            "uri"       => "/help/downtime_schedule",
-            "args"      => {},
-        },
-    );
+            "create_friend" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/friendships/create/ID",
+                "args"      => {
+                    "id"     => 1,
+                    "follow" => 0,
+                },
+            },
+            "destroy_friend" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/friendships/destroy/ID",
+                "args"      => { "id" => 1, },
+            },
+            "relationship_exists" => {
+                "blankargs" => 0,
+                "post"      => 0,
+                "uri"       => "/friendships/exists",
+                "args"      => {
+                    "user_a" => 1,
+                    "user_b" => 1,
+                },
+            },
+            "verify_credentials" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/account/verify_credentials",
+                "args"      => {},
+            },
+            "end_session" => {
+                "blankargs" => 1,
+                "post"      => 1,
+                "uri"       => "/account/end_session",
+                "args"      => {},
+            },
+            "update_profile_colors" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/account/update_profile_colors",
+                "args"      => {
+                    "profile_background_color"     => 0,
+                    "profile_text_color"           => 0,
+                    "profile_link_color"           => 0,
+                    "profile_sidebar_fill_color"   => 0,
+                    "profile_sidebar_border_color" => 0,
+                },
+            },
+            "update_profile_image" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/account/update_profile_image",
+                "args"      => { "image" => 1, },
+            },
+            "update_profile_background_image" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/account/update_profile_background_image",
+                "args"      => { "image" => 1, },
+            },
+            "update_delivery_device" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/account/update_delivery_device",
+                "args"      => { "device" => 1, },
+            },
+            "rate_limit_status" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/account/rate_limit_status",
+                "args"      => {},
+            },
+            "favorites" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/favorites",
+                "args"      => {
+                    "id"   => 0,
+                    "page" => 0,
+                },
+            },
+            "create_favorite" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/favorites/create/ID",
+                "args"      => { "id" => 1, },
+            },
+            "destroy_favorite" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/favorites/destroy/ID",
+                "args"      => { "id" => 1, },
+            },
+            "enable_notifications" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/notifications/follow/ID",
+                "args"      => { "id" => 1, },
+            },
+            "disable_notifications" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/notifications/leave/ID",
+                "args"      => { "id" => 1, },
+            },
+            "create_block" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/blocks/create/ID",
+                "args"      => { "id" => 1, },
+            },
+            "destroy_block" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/blocks/destroy/ID",
+                "args"      => { "id" => 1, },
+            },
+            "test" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/help/test",
+                "args"      => {},
+            },
+            "downtime_schedule" => {
+                "blankargs" => 100,
+                "post"      => 0,
+                "uri"       => "/help/downtime_schedule",
+                "args"      => {},
+            },
+        };
+      }
 
 ### Have to turn strict refs off in order to insert subrefs by value.
-    no strict "refs";
+      no strict "refs";
 
 ### For each method name in %apicalls insert a stub method to handle request.
-
+    my %apicalls = %{_get_apicalls()};
+    
     foreach my $methodname ( keys %apicalls ) {
 
         *{$methodname} = sub {
@@ -597,7 +600,7 @@ m/create_block|destroy_block|friends\b|show_user|create_friend|destroy_friend|de
 
             ### Create the URL. If it ends in /ID it needs the id param substituted
             ### into the URL and not as an arg.
-            if ( (my $uri = $method_def->{uri}) =~ s|/ID|| ) {
+            if ( ( my $uri = $method_def->{uri} ) =~ s|/ID|| ) {
                 if ( defined $args->{id} ) {
                     $url .= $uri . "/" . delete( $args->{id} ) . ".json";
                     $seen_id++;
