@@ -77,18 +77,16 @@ foreach my $testmethod ( sort keys %tests ) {
             last;
         }
         foreach my $combo ($combolist) {
-            if (scalar @$combo == 1) {
-                ok $nt->$testmethod($combo->[0]), "Single string " . $combo->[0] . " passed to $testmethod";                
+            if ( ( scalar @$combo == 1 ) and $combo->[0] eq "id" ) {
+                ok $nt->$testmethod( $combo->[0] ), "Single string " . $combo->[0] . " passed to $testmethod";
             }
             my $arghash = {};
             foreach my $passarg (@$combo) {
                 $arghash->{$passarg} = 1;
             }
-            ok $nt->$testmethod($arghash), join(", ", @$combo) . " passed to $testmethod";
+            ok $nt->$testmethod($arghash), join( ", ", @$combo ) . " passed to $testmethod";
         }
-        
+
     }
 }
-
-#$nt->{ua}->print_diags(1);
 
