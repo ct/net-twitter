@@ -646,11 +646,11 @@ BEGIN {
                         };
                         return $self->{error_return_val};
                     } else {
-                        $url .= $method_def->{uri} . ".json";
+                        $url .= $uri . ".json";
                     }
                 }
             } else {
-                $url .= $method_def->{uri} . ".json";
+                $url .= $uri . ".json";
             }
 
             ### Validate args. Don't validate if $args is undef, we've already checked that
