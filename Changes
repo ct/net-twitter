@@ -1,5 +1,8 @@
 Revision history for Net-Twitter
 
+2.06 - Mon Jan 26, 2009
+	o 2.05 had glitch which caused some methods like user_timeline to call the incorrect URL when called
+		with no args, returning the wrong user's timeline.
 2.05 - Sun Jan 25, 2009
 	o public_timeline can now take zero args.
 	o Any method which can take "id" as the only arg in the passed hashref can now also take that arg

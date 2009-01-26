@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.05
+    This document describes Net::Twitter version 2.06
 
 SYNOPSIS
        #!/usr/bin/perl

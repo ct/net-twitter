@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.05
+# v2.06
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.05";
+$VERSION = "2.06";
 use 5.005;
 use strict;
 
@@ -575,7 +575,7 @@ BEGIN {
                 followers
                 user_timeline
                 );
-            
+
             if ( ( !ref($args) ) && ( defined $args ) ) {
                 if ( $whoami eq "relationship_exists" ) {
                     my $user_b = shift;
@@ -758,7 +758,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.05
+This document describes Net::Twitter version 2.06
 
 =head1 SYNOPSIS
 
