@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.04
+# v2.05
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.04";
+$VERSION = "2.05";
 use 5.005;
 use strict;
 
@@ -758,7 +758,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.04
+This document describes Net::Twitter version 2.05
 
 =head1 SYNOPSIS
 
@@ -992,11 +992,17 @@ Returns status of a single tweet. The status' author will be returned inline.
  
 The argument is the ID or email address of the twitter user to pull, and is REQUIRED.
  
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
+
 =item C<destroy_status($id)>
  
 Destroys the status specified by the required ID parameter. The
 authenticating user must be the author of the specified status.
- 
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
+
 =item C<user_timeline(...)>
 
 This returns an arrayref to an array of hashrefs, containing the 20 (or more) posts from
@@ -1030,8 +1036,11 @@ OPTIONAL: Narrows the returned results to a certain number of statuses. This is 
  
 OPTIONAL: Gets the 20 next most recent statuses from the authenticating user and that user's
 friends, eg "page=3".
- 
+
 =back
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
  
  
 =item C<public_timeline()>
@@ -1049,11 +1058,6 @@ If called with no arguments, returns the friends' timeline for the authenticatin
 Accepts an optional hashref as an argument:
  
 =over
- 
-=item C<id>
- 
-OPTIONAL: User id or email address of a user other than the authenticated user,
-in order to retrieve that user's friends_timeline.
  
 =item C<since>
  
@@ -1131,6 +1135,9 @@ OPTIONAL: Gets the 100 next most recent friends, eg "page=3".
  
 =back
  
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
+
 =item C<followers()>
  
 his returns an arrayref to an array of hashrefs. Each hashref contains the information 
@@ -1150,15 +1157,18 @@ OPTIONAL: The ID or screen name of the user for whom to request a list of follow
 =item C<page>
  
 OPTIONAL: Retrieves the next 100 followers.
- 
+
 =back
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
  
 =item C<show_user()>
  
 Returns a hashref containing extended information of a single user.
  
 The argument is a hashref containing either the user's ID or email address. It is required
-to pass either one or the other:
+to pass either one or the other, but not both:
  
 =over
  
@@ -1176,6 +1186,10 @@ If the C<twittervision> argument is passed to C<new> when the object is
 created, this method will include the location information for the user
 from twittervision.com, placing it inside the returned hashref under the
 key C<twittervision>.
+ 
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
+
  
 =back
  
@@ -1253,7 +1267,10 @@ REQUIRED: Text of direct message.
  
 Destroys the direct message specified in the required ID parameter. The
 authenticating user must be the recipient of the specified direct message.
- 
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
+
 =back
  
 =head2 FRIENDSHIP METHODS
@@ -1274,14 +1291,20 @@ REQUIRED. The ID or screen name of the user to befriend.
 =item C<follow>
  
 OPTIONAL. Enable notifications for the target user in addition to becoming friends.
- 
+
 =back
- 
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
+
 =item C<destroy_friend($id)>
  
 Discontinues friendship with the user specified in the ID parameter as the
 authenticating user. Returns a hashref containing the unfriended user's information 
 when successful.
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
 
  
 =item C<relationship_exists($user_a, $user_b)>
@@ -1418,8 +1441,12 @@ statuses.
 =item C<page>
  
 OPTIONAL: Gets the 20 next most recent favorite statuses, eg "page=3".
- 
+
 =back
+ 
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
+
  
 =item C<create_favorite()>
  
@@ -1430,10 +1457,13 @@ This takes a hashref as an argument:
 =over
     
 =item C<id>
-REQUIRED: The ID of the status to favorite.
- 
+
+REQUIRED: The ID of the status to favorite. 
+
 =back
- 
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =item C<destroy_favorite()>
  
@@ -1445,8 +1475,11 @@ This takes a hashref as an argument:
     
 =item C<id>
 REQUIRED. The ID of the status to un-favorite.
- 
+
 =back
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =back
  
@@ -1465,8 +1498,11 @@ This takes a hashref as an argument:
     
 =item C<id>
 REQUIRED: The ID or screen name of the user to receive notices from.
- 
+
 =back
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =item C<disable_notifications()>
  
@@ -1482,6 +1518,9 @@ This takes a hashref as an argument:
 REQUIRED: The ID or screen name of the user to stop receiving notices from.
  
 =back
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =back
  
@@ -1494,6 +1533,9 @@ REQUIRED: The ID or screen name of the user to stop receiving notices from.
 Blocks the user id passed as an argument from the authenticating user.
 Returns a hashref containing the user information for the blocked user when successful.
  
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
+ 
 You can find more information about blocking at
 L<http://help.twitter.com/index.php?pg=kb.page&id=69>.
  
@@ -1501,6 +1543,9 @@ L<http://help.twitter.com/index.php?pg=kb.page&id=69>.
 
 Un-blocks the user id passed as an argument from the authenticating user.
 Returns a hashref containing the user information for the blocked user when successful.
+
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
 
 =back
  
