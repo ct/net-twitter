@@ -299,6 +299,8 @@ sub _twitter_rest_api {
 
     return $self->_error_response(400, chomp $@) if $@;
 
+    return $self->_error_response(400, "Bad URL, /ID.json present.") if $uri =~ m/ID.json/;    
+
     my $api_entry = $twitter_api{$path}
         || return $self->error_response(404, "$path is not a twitter api entry");
 
