@@ -25,9 +25,6 @@ my %tests;
 my @methods = sort( keys(%$apicalls) );
 
 foreach my $method (@methods) {
-    if ( $method eq "show_user" ) {
-        next;
-    }
     my @req;
     my @opt;
     $tests{$method} = ();
@@ -35,6 +32,9 @@ foreach my $method (@methods) {
     my @keys = keys( %{ $apicalls->{$method}->{args} } );
     if ( my $count = scalar(@keys) ) {
         foreach my $key (@keys) {
+            if ( ( $method eq "show_user" ) and ( $key =~ m/id|email/ ) ) {
+                next;
+            }
             if ( $apicalls->{$method}->{args}->{$key} ) {
                 push( @req, $key );
             } else {
@@ -45,32 +45,34 @@ foreach my $method (@methods) {
         push( @{ $tests{$method} }, ["NONE"] );
         next;
     }
-
+    
     my $powerset = powerset(@opt);
-
+    
     foreach my $p (@$powerset) {
         my @testargs;
-        if ( scalar(@req) ) {
-            push( @testargs, @req );
+        if ( $method eq "show_user" ) {
+            push( @{$tests{$method}}, [("id", @$p)]);
+            push( @{$tests{$method}}, [("email", @$p)]);
+        } else {
+            if ( scalar(@req) ) {
+                push( @testargs, @req );
+            }
+            if ( scalar(@$p) ) {
+                push( @testargs, @$p );
+            }
+            push( @{ $tests{$method} }, \@testargs ) unless ( !scalar(@testargs) );
         }
-        if ( scalar(@$p) ) {
-            push( @testargs, @$p );
-        }
-        push( @{ $tests{$method} }, \@testargs ) unless ( !scalar(@testargs) );
     }
-
     if ( $apicalls->{$method}->{blankargs} ) {
         push( @{ $tests{$method} }, ["ZERO"] );
     }
 }
 
 foreach my $testmethod ( sort keys %tests ) {
-
     if ( $tests{$testmethod}->[0]->[0] eq 'NONE' ) {
         ok $nt->$testmethod(), "No Args to $testmethod";
         next;
     }
-
     foreach my $combolist ( @{ $tests{$testmethod} } ) {
         if ( $combolist->[0] eq 'ZERO' ) {
             ok $nt->$testmethod(), "Zero Args to $testmethod";
@@ -84,9 +86,9 @@ foreach my $testmethod ( sort keys %tests ) {
             foreach my $passarg (@$combo) {
                 $arghash->{$passarg} = 1;
             }
+
             ok $nt->$testmethod($arghash), join( ", ", @$combo ) . " passed to $testmethod";
         }
 
     }
 }
-
