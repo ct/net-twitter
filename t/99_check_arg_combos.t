@@ -1,9 +1,18 @@
 #!perl
 use Carp;
 use strict;
-use Test::More qw(no_plan);
+use Test::More;
 use Test::Exception;
-use Data::PowerSet 'powerset';
+
+BEGIN {
+    eval "use Data::PowerSet 'powerset'";
+    if ( $@ ) {
+        plan skip_all => 'Data::PowerSet required for these tests';
+    }
+    else {
+        plan 'no_plan';
+    }
+}
 
 use lib qw(t/lib);
 
