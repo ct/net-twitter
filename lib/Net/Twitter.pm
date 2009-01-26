@@ -1672,6 +1672,8 @@ You can track Net::Twitter development at http://github.com/ct/net-twitter/tree/
 
 Chris Thompson <cpan@cthompson.com>
 
+The test framework for Net::Twitter was written by Marc "semifor" Mims.
+
 The framework of this module is shamelessly stolen from L<Net::AIML>. Big
 ups to Chris "perigrin" Prather for that.
        
