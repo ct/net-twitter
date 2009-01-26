@@ -9,6 +9,7 @@ requires 'URI::Escape'    => 0;
 requires 'JSON::Any'      => '1.19';
 
 test_requires 'Test::More'     => 0;
+test_requires 'Test::Exception'     => 0;
 
 homepage 'http://www.net-twitter.info';
 bugtracker 'http://rt.cpan.org/Public/Dist/Display.html?Name=Net-Twitter';

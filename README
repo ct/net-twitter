@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.04
+    This document describes Net::Twitter version 2.05
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -217,9 +217,15 @@ DESCRIPTION
         The argument is the ID or email address of the twitter user to pull,
         and is REQUIRED.
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
+
     "destroy_status($id)"
         Destroys the status specified by the required ID parameter. The
         authenticating user must be the author of the specified status.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
 
     "user_timeline(...)"
         This returns an arrayref to an array of hashrefs, containing the 20
@@ -250,6 +256,10 @@ DESCRIPTION
             OPTIONAL: Gets the 20 next most recent statuses from the
             authenticating user and that user's friends, eg "page=3".
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified.
+
     "public_timeline()"
         This returns an arrayref to an array of hashrefs, containing the
         information and status of each of the last 20 posts by all
@@ -264,11 +274,6 @@ DESCRIPTION
         authenticating user.
 
         Accepts an optional hashref as an argument:
-
-        "id"
-            OPTIONAL: User id or email address of a user other than the
-            authenticated user, in order to retrieve that user's
-            friends_timeline.
 
         "since"
             OPTIONAL: Narrows the returned results to just those statuses
@@ -324,6 +329,10 @@ DESCRIPTION
         "page"
             OPTIONAL: Gets the 100 next most recent friends, eg "page=3".
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified.
+
     "followers()"
         his returns an arrayref to an array of hashrefs. Each hashref
         contains the information and status of those who follow your status
@@ -341,11 +350,16 @@ DESCRIPTION
         "page"
             OPTIONAL: Retrieves the next 100 followers.
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified.
+
     "show_user()"
         Returns a hashref containing extended information of a single user.
 
         The argument is a hashref containing either the user's ID or email
-        address. It is required to pass either one or the other:
+        address. It is required to pass either one or the other, but not
+        both:
 
         "id"
             The ID or screen name of the user.
@@ -358,6 +372,10 @@ DESCRIPTION
         is created, this method will include the location information for
         the user from twittervision.com, placing it inside the returned
         hashref under the key "twittervision".
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified.
 
   DIRECT MESSAGE METHODS
     "direct_messages()"
@@ -411,6 +429,9 @@ DESCRIPTION
         The authenticating user must be the recipient of the specified
         direct message.
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
+
   FRIENDSHIP METHODS
     "create_friend(...)"
         Befriends the user specified in the id parameter as the
@@ -424,10 +445,17 @@ DESCRIPTION
             OPTIONAL. Enable notifications for the target user in addition
             to becoming friends.
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified.
+
     "destroy_friend($id)"
         Discontinues friendship with the user specified in the ID parameter
         as the authenticating user. Returns a hashref containing the
         unfriended user's information when successful.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
 
     "relationship_exists($user_a, $user_b)"
         Tests if friendship exists between the two users specified as
@@ -534,12 +562,20 @@ DESCRIPTION
             OPTIONAL: Gets the 20 next most recent favorite statuses, eg
             "page=3".
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified.
+
     "create_favorite()"
         Sets the specified ID as a favorite for the authenticating user.
 
         This takes a hashref as an argument:
 
-        "id" REQUIRED: The ID of the status to favorite.
+        "id"
+            REQUIRED: The ID of the status to favorite.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
 
     "destroy_favorite()"
         Removes the specified ID as a favorite for the authenticating user.
@@ -547,6 +583,9 @@ DESCRIPTION
         This takes a hashref as an argument:
 
         "id" REQUIRED. The ID of the status to un-favorite.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
 
   NOTIFICATION METHODS
     "enable_notifications()"
@@ -558,6 +597,9 @@ DESCRIPTION
         "id" REQUIRED: The ID or screen name of the user to receive notices
         from.
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
+
     "disable_notifications()"
         Disables notifications for updates from the specified user to the
         authenticating user. Returns the specified user when successful.
@@ -568,11 +610,17 @@ DESCRIPTION
             REQUIRED: The ID or screen name of the user to stop receiving
             notices from.
 
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
+
   BLOCK METHODS
     "create_block($id)"
         Blocks the user id passed as an argument from the authenticating
         user. Returns a hashref containing the user information for the
         blocked user when successful.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
 
         You can find more information about blocking at
         <http://help.twitter.com/index.php?pg=kb.page&id=69>.
@@ -581,6 +629,9 @@ DESCRIPTION
         Un-blocks the user id passed as an argument from the authenticating
         user. Returns a hashref containing the user information for the
         blocked user when successful.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id".
 
   SEARCH
     As of version 2.00, Net::Twitter implements the search functionality of

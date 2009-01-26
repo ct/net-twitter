@@ -1,5 +1,14 @@
 Revision history for Net-Twitter
 
+2.05 - Sun Jan 25, 2009
+	o public_timeline can now take zero args.
+	o Any method which can take "id" as the only arg in the passed hashref can now also take that arg
+		value as a string.
+	o More arg validation updates. We're running out of places to break, knock on wood.
+	o Code run through local test not packaged with the module which tests each method with every
+		conceivable combination of args. There should be no more places the arg validation breaks
+		valid arg combos, and it should be much more difficult for me to break it so in the future.
+
 2.04 - Sat Jan 24, 2009
 	o More tweaks from Marc Mims on regression tests
 	o Reworked bad arg handling which caused subsequent calls of several methods to fail.
