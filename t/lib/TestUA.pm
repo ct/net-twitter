@@ -1,5 +1,5 @@
-package # hide from PAUSE
-    TestUA;
+package    # hide from PAUSE
+  TestUA;
 
 use warnings;
 use strict;
@@ -83,6 +83,12 @@ my %twitter_api = (
             "page" => 0,
         },
     },
+    "/followers/ids" => {
+        "has_id"    => 1,
+        "blankargs" => 1,
+        "post"      => 0,
+        "args"      => { "id" => 0 },
+    },
     "/users/show" => {
         "has_id"    => 1,
         "blankargs" => 0,
@@ -93,8 +99,9 @@ my %twitter_api = (
         },
         required => sub {
             my $args = shift;
+
             # one, but not both
-            return (exists $args->{id} xor exists $args->{email});
+            return ( exists $args->{id} xor exists $args->{email} );
         },
     },
     "/direct_messages" => {
@@ -151,6 +158,12 @@ my %twitter_api = (
             "user_a" => 1,
             "user_b" => 1,
         },
+    },
+    "/friends/ids" => {
+        "has_id"    => 1,
+        "blankargs" => 1,
+        "post"      => 0,
+        "args"      => { "id" => 0 },
     },
     "/account/verify_credentials" => {
         "blankargs" => 1,
@@ -251,88 +264,86 @@ my %twitter_api = (
 
 sub new {
     my $class = shift;
-    return bless {
-        _host => 'twitter.com',
-    }, $class;
+    return bless { _host => 'twitter.com', }, $class;
 }
 
-sub credentials {}
+sub credentials { }
 
-sub agent {}
+sub agent { }
 
-sub default_header {}
+sub default_header { }
 
-sub env_proxy {}
+sub env_proxy { }
 
 sub get {
-    my ($self, $url) = @_;
+    my ( $self, $url ) = @_;
 
     my $uri = URI->new($url);
     eval { $self->_validate_basic_url($uri) };
     if ( my $error = $@ ) {
         chomp $error;
-        return $self->_error_response(400, $error);
+        return $self->_error_response( 400, $error );
     }
 
     # strip the args
     my %args = $uri->query_form;
-    $uri->query_form([]);
+    $uri->query_form( [] );
 
-    return $self->_twitter_rest_api('GET', $uri, \%args);
+    return $self->_twitter_rest_api( 'GET', $uri, \%args );
 }
 
 sub post {
-    my ($self, $url, $args) = @_;
+    my ( $self, $url, $args ) = @_;
 
     my $uri = URI->new($url);
     eval { $self->_validate_basic_url($uri) };
-    return $self->_error_response(400, chomp $@) if $@;
+    return $self->_error_response( 400, chomp $@ ) if $@;
 
-    return $self->_error_response(400, "POST $url contains parameters") if $uri->query_form;
-    return $self->_twitter_rest_api('POST', $uri, $args);
+    return $self->_error_response( 400, "POST $url contains parameters" ) if $uri->query_form;
+    return $self->_twitter_rest_api( 'POST', $uri, $args );
 }
 
 sub _twitter_rest_api {
-    my ($self, $method, $uri, $args) = @_;
+    my ( $self, $method, $uri, $args ) = @_;
 
-    my ($path, $id) = eval { $self->_parse_path_id($uri) };
+    my ( $path, $id ) = eval { $self->_parse_path_id($uri) };
 
-    return $self->_error_response(400, chomp $@) if $@;
+    return $self->_error_response( 400, chomp $@ ) if $@;
 
-    return $self->_error_response(400, "Bad URL, /ID.json present.") if $uri =~ m/ID.json/;    
+    return $self->_error_response( 400, "Bad URL, /ID.json present." ) if $uri =~ m/ID.json/;
 
     my $api_entry = $twitter_api{$path}
-        || return $self->error_response(404, "$path is not a twitter api entry");
+      || return $self->error_response( 404, "$path is not a twitter api entry" );
 
     # TODO: What if ID is passed in the URL and args? What if the 2 are different?
-    $args->{id} = $id if $api_entry->{has_id} and defined $id;
+    $args->{id} = $id if $api_entry->{has_id} && defined $id && $id;
 
-    $self->{_input_args} = { %$args }; # save a copy of input args for tests
+    $self->{_input_args} = {%$args};    # save a copy of input args for tests
 
-    return $self->_error_response(400, "expected POST")
-        if  $api_entry->{post} && $method ne 'POST';
-    return $self->_error_response(400, "expected GET")
-        if !$api_entry->{post} && $method ne 'GET';
+    return $self->_error_response( 400, "expected POST" )
+      if $api_entry->{post} && $method ne 'POST';
+    return $self->_error_response( 400, "expected GET" )
+      if !$api_entry->{post} && $method ne 'GET';
 
     if ( my $coderef = $api_entry->{required} ) {
         unless ( $coderef->($args) ) {
-            return $self->_error_response(400, "requried args test failed");
+            return $self->_error_response( 400, "requried args test failed" );
         }
-    }
-    else {
-        my @required = grep { $api_entry->{args}{$_} } keys %{$api_entry->{args}};
+    } else {
+        my @required = grep { $api_entry->{args}{$_} } keys %{ $api_entry->{args} };
         if ( my @missing = grep { !exists $args->{$_} } @required ) {
-            return $self->_error_response(400, "requried args missing: @missing");
+            return $self->_error_response( 400, "requried args missing: @missing" );
         }
     }
 
     if ( my @undefined = grep { $args->{$_} eq '' } keys %$args ) {
-        return $self->_error_response(400, "args with undefined values: @undefined");
+        return $self->_error_response( 400, "args with undefined values: @undefined" );
     }
 
     my %unexpected_args = map { $_ => 1 } keys %$args;
-    delete $unexpected_args{$_} for keys %{$api_entry->{args}};
+    delete $unexpected_args{$_} for keys %{ $api_entry->{args} };
     if ( my @unexpected_args = sort keys %unexpected_args ) {
+
         # twitter seems to ignore unexpected args, so don't fail, just diag
         print "# unexpected args: @unexpected_args\n" if $self->print_diags;
     }
@@ -341,26 +352,26 @@ sub _twitter_rest_api {
 }
 
 sub _validate_basic_url {
-    my ($self, $url) = @_;
+    my ( $self, $url ) = @_;
 
     my $uri = URI->new($url);
 
     die "scheme: expected http\n" unless $uri->scheme eq 'http';
-    die "bad host\n" unless $uri->host eq 'twitter.com';
-    die "expected .json\n" unless (my $path = $uri->path) =~ s/\.json$//;
+    die "bad host\n"              unless $uri->host   eq 'twitter.com';
+    die "expected .json\n" unless ( my $path = $uri->path ) =~ s/\.json$//;
 
     $uri->path($path);
 }
 
 sub _error_response {
-    my ($self, $rc, $msg) = @_;
+    my ( $self, $rc, $msg ) = @_;
 
     print "# $msg\n" if $self->print_diags;
-    return $self->_response(_rc => $rc, _msg => $msg, _content => $msg);
+    return $self->_response( _rc => $rc, _msg => $msg, _content => $msg );
 }
 
 sub _response {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $content = $self->success_content;
     $content = '{"test":"1"}' unless defined $content;
@@ -370,18 +381,19 @@ sub _response {
         _msg     => 'OK',
         _headers => {},
         %args,
-    }, 'HTTP::Response';
+      },
+      'HTTP::Response';
 }
 
 sub _parse_path_id {
-    my ($self, $uri) = @_;
+    my ( $self, $uri ) = @_;
 
-    (my $path = $uri->path) =~ s/\.json$//;
+    ( my $path = $uri->path ) =~ s/\.json$//;
     return ($path) if $twitter_api{$path};
 
-    ($path, my $id) = $path =~ /(.*)\/(.*)$/;
+    ( $path, my $id ) = $path =~ /(.*)\/(.*)$/;
 
-    return ($path, $id) if $twitter_api{$path} && $twitter_api{$path}{has_id};
+    return ( $path, $id ) if $twitter_api{$path} && $twitter_api{$path}{has_id};
 
     die "$path is not a twitter_api method\n";
 }

@@ -1,7 +1,7 @@
 #!perl
 use Carp;
 use strict;
-use Test::More tests => 35;
+use Test::More tests => 43;
 use Test::Exception;
 
 use lib qw(t/lib);
@@ -45,6 +45,18 @@ ok       $r = $nt->relationship_exists({ user_a => 'homer', user_b => 'marge' })
 cmp_ok   $r, '==', 1, 'relationship_exists returns bool';
 $nt->{ua}->clear_success_content;
 
+
+# new API methods added Feb 09
+
+ok      $nt->friends_ids();
+ok      $nt->friends_ids("bob");
+ok      $nt->friends_ids(id=>"bob");
+ok      $nt->friends_ids({id=>"bob"});
+
+ok      $nt->followers_ids();
+ok      $nt->followers_ids("bob");
+ok      $nt->followers_ids(id=>"bob");
+ok      $nt->followers_ids({id=>"bob"});
 
 # Net::Twitter calls used by POE::Component::Server::Twirc
 $nt->{die_on_validation} = 0;
