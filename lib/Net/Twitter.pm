@@ -414,6 +414,18 @@ BEGIN {
                     "user_b" => 1,
                 },
             },
+            "friends_ids" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/friends/ids/ID",
+                "args"      => { "id" => 0, },
+            },
+            "followers_ids" => {
+                "blankargs" => 1,
+                "post"      => 0,
+                "uri"       => "/followers/ids/ID",
+                "args"      => { "id" => 0, },
+            },
             "verify_credentials" => {
                 "blankargs" => 1,
                 "post"      => 0,
@@ -564,23 +576,25 @@ BEGIN {
             ### arg in, instead of a hashref. Since the methods that allowed this in 1.xx have
             ### different defaults, use a bit of logic to stick the value in the right place.
             my %idsubs = map { $_ => 1 } qw (
-                create_block
-                destroy_block
-                friends
-                show_user
-                create_friend
-                destroy_friend
-                destroy_direct_message
-                show_status
-                create_favorite
-                destroy_favorite
-                destroy_status
-                disable_notifications
-                enable_notifications
-                favorites
-                followers
-                user_timeline
-                );
+              create_block
+              destroy_block
+              friends
+              show_user
+              create_friend
+              destroy_friend
+              destroy_direct_message
+              show_status
+              create_favorite
+              destroy_favorite
+              destroy_status
+              disable_notifications
+              enable_notifications
+              favorites
+              followers
+              user_timeline
+              friends_ids
+              followers_ids
+            );
 
             if ( ( !ref($args) ) && ( defined $args ) ) {
                 if ( $whoami eq "relationship_exists" ) {
@@ -1319,6 +1333,49 @@ Tests if friendship exists between the two users specified as arguments. Both ar
 are REQUIRED.
  
 =back
+ 
+=head2 SOCIAL GRAPH METHODS
+
+=over
+
+=item C<friends_ids()>
+
+Returns an arrayref to an array of numeric IDs for every user the specified user is following.
+Returns undef if an error occurs.
+
+Takes a hashref as an arg:
+
+=over
+
+=item C<id>
+
+OPTIONAL: User id or email address of a user other than the authenticated user,
+in order to retrieve that user's friends.
+
+=back
+
+This method can take the "id" argument passed to it either as a single string, or in a
+hashref with a key called "id". If passed as a string, no other args can be specified.
+If no args are passed, returns the list for the authenticating user.
+
+=item C<followers_ids()>
+
+Returns an arrayref to an array of numeric IDs for every user the specified user is followed
+by. Returns undef if an error occurs.
+
+Accepts an optional hashref for arguments:
+
+=over
+
+=item C<id>
+
+OPTIONAL: The ID or screen name of the user for whom to request a list of followers.
+
+=back
+
+This method can take the "id" argument passed to it either as a single string, or in a
+hashref with a key called "id". If passed as a string, no other args can be specified.
+If no args are passed, returns the list for the authenticating user.
  
 =head2 ACCOUNT METHODS
  
