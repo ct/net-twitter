@@ -132,6 +132,13 @@ sub credentials {
 sub get_error {
     my $self = shift;
     return $self->{response_error};
+    my $response = eval { JSON::Any->jsonToObj( $self->{response_error} ) };
+    
+    if ( !defined $response ) {
+         $self->{response_error} =
+           "TWITTER RETURNED ERROR MESSAGE BUT PARSING OF THE JSON RESPONSE FAILED - "
+           . $self->{response_error};
+     }
 }
 
 sub http_code {
