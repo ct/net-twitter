@@ -1,5 +1,11 @@
 Revision history for Net-Twitter
 
+2.07 - Thu Feb 12, 2009
+	o Add new friends_ids and followers_ids social graph methods
+	o Added tests for the above.
+	o Fix bug where get_error was not decoding the JSON that was returned.
+	o Added documentation about hashref passing needing {} specified.
+	
 2.06 - Mon Jan 26, 2009
 	o 2.05 had glitch which caused some methods like user_timeline to call the incorrect URL when called
 		with no args, returning the wrong user's timeline.

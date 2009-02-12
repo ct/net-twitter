@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.06
+    This document describes Net::Twitter version 2.07
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -36,6 +36,22 @@ DESCRIPTION
 
     You can view the latest status of Net::Twitter on it's own twitter
     timeline at http://twitter.com/net_twitter
+
+METHODS AND ARGUMENTS
+    Listed below are the methods available through the object.
+
+    Please note that any method that takes a hashref as an argument must be
+    called in the form:
+
+        $twit->method({arg => "value"});
+
+        and not
+
+        $twit->method(arg => "value");
+
+    If the curly brackets around the arguments are missing, the code which
+    implements the convenience methods allowing you to specify a single
+    argument as a string will interpret "arg" as your argument.
 
     "new(...)"
         You must supply a hash containing the configuration for the
@@ -461,6 +477,37 @@ DESCRIPTION
         Tests if friendship exists between the two users specified as
         arguments. Both arguments are REQUIRED.
 
+  SOCIAL GRAPH METHODS
+    "friends_ids()"
+        Returns an arrayref to an array of numeric IDs for every user the
+        specified user is following. Returns undef if an error occurs.
+
+        Takes a hashref as an arg:
+
+        "id"
+            OPTIONAL: User id or email address of a user other than the
+            authenticated user, in order to retrieve that user's friends.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified. If no args are passed,
+        returns the list for the authenticating user.
+
+    "followers_ids()"
+        Returns an arrayref to an array of numeric IDs for every user the
+        specified user is followed by. Returns undef if an error occurs.
+
+        Accepts an optional hashref for arguments:
+
+        "id"
+            OPTIONAL: The ID or screen name of the user for whom to request
+            a list of followers.
+
+        This method can take the "id" argument passed to it either as a
+        single string, or in a hashref with a key called "id". If passed as
+        a string, no other args can be specified. If no args are passed,
+        returns the list for the authenticating user.
+
   ACCOUNT METHODS
     "verify_credentials()"
         Returns a hashref containing the authenticating user's extended
@@ -737,6 +784,8 @@ BUGS AND LIMITATIONS
 AUTHOR
     Chris Thompson <cpan@cthompson.com>
 
+    The test framework for Net::Twitter was written by Marc "semifor" Mims.
+
     The framework of this module is shamelessly stolen from Net::AIML. Big
     ups to Chris "perigrin" Prather for that.
 
@@ -768,4 +817,17 @@ DISCLAIMER OF WARRANTY
     FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
     SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
     DAMAGES.
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 820:
+        You forgot a '=back' before '=head1'
+
+    Around line 837:
+        '=item' outside of any '=over'
+
+    Around line 1397:
+        You forgot a '=back' before '=head2'
 
