@@ -820,8 +820,6 @@ your friends.
 You can view the latest status of Net::Twitter on it's own twitter timeline
 at http://twitter.com/net_twitter
 
-=over
-
 =head1 METHODS AND ARGUMENTS
 
 Listed below are the methods available through the object.
@@ -838,6 +836,8 @@ in the form:
 If the curly brackets around the arguments are missing, the code which implements the
 convenience methods allowing you to specify a single argument as a string will interpret
 "arg" as your argument.
+
+=over
 
 =item C<new(...)>
 
@@ -1399,6 +1399,8 @@ This method can take the "id" argument passed to it either as a single string, o
 hashref with a key called "id". If passed as a string, no other args can be specified.
 If no args are passed, returns the list for the authenticating user.
  
+=back
+
 =head2 ACCOUNT METHODS
  
 =over

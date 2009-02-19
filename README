@@ -2,20 +2,20 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.07
+    This document describes Net::Twitter version 2.08
 
 SYNOPSIS
        #!/usr/bin/perl
 
        use Net::Twitter;
 
-       my $twit = Net::Twitter->new(username=>"myuser", password=>"mypass" );
+       my $twit = Net::Twitter->new({username=>"myuser", password=>"mypass" });
 
-       my $result = $twit->update(status => "My current Status");
+       my $result = $twit->update({status => "My current Status"});
 
        my $twit->credentials("otheruser", "otherpass");
 
-       my $result = $twit->update(status => "Status for otheruser");
+       my $result = $twit->update({status => "Status for otheruser"});
 
        my $result = $twitter->search('Albi the racist dragon');
 
@@ -817,17 +817,4 @@ DISCLAIMER OF WARRANTY
     FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
     SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
     DAMAGES.
-
-POD ERRORS
-    Hey! The above document had some coding errors, which are explained
-    below:
-
-    Around line 820:
-        You forgot a '=back' before '=head1'
-
-    Around line 837:
-        '=item' outside of any '=over'
-
-    Around line 1397:
-        You forgot a '=back' before '=head2'
 
