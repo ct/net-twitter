@@ -786,13 +786,13 @@ This document describes Net::Twitter version 2.07
 
    use Net::Twitter;
 
-   my $twit = Net::Twitter->new(username=>"myuser", password=>"mypass" );
+   my $twit = Net::Twitter->new({username=>"myuser", password=>"mypass" });
 
-   my $result = $twit->update(status => "My current Status");
+   my $result = $twit->update({status => "My current Status"});
 
    my $twit->credentials("otheruser", "otherpass");
 
-   my $result = $twit->update(status => "Status for otheruser");
+   my $result = $twit->update({status => "Status for otheruser"});
 
    my $result = $twitter->search('Albi the racist dragon');
 
