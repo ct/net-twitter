@@ -1,7 +1,7 @@
 #!perl
 use Carp;
 use strict;
-use Test::More tests => 43;
+use Test::More tests => 44;
 use Test::Exception;
 
 use lib qw(t/lib);
