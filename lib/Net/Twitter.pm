@@ -443,6 +443,18 @@ BEGIN {
                 "uri"       => "/account/end_session",
                 "args"      => {},
             },
+            "update_profile" => {
+                "blankargs" => 0,
+                "post"      => 1,
+                "uri"       => "/account/update_profile",
+                "args"      => {
+                    "name"        => 0,
+                    "email"       => 0,
+                    "url"         => 0,
+                    "location"    => 0,
+                    "description" => 0,
+                },
+              },
             "update_profile_colors" => {
                 "blankargs" => 0,
                 "post"      => 1,

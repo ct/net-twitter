@@ -78,6 +78,7 @@ ok      $nt->create_block('flanders'), 'create_block';
 ok      $nt->destroy_block('flanders'), 'destroy_block';
 ok      $nt->create_favorite({ id => 12345678 }), 'create_favorite hashref';
 ok      $nt->rate_limit_status, 'rate_limit_status';
+ok      $nt->update_profile({name=> "Flerb"}), 'update_profile';
 
 ### Regression: broken in 2.03
 ok      $nt->show_status('flanders'),           'show_status string arg';
