@@ -1,5 +1,12 @@
 Revision history for Net-Twitter
 
+2.09 - Thu Feb 20, 2009
+	o Embarrassing. Since the very first 2.xx update_profile has been missing. This adds it back in and tests it.
+	
+2.08 - Thu Feb 19, 2009
+	o Fixed ridiculously broken logic in get_error JSON deparse.
+	o POD fix with SYNOPSIS to make the examples match the {} requirement
+	
 2.07 - Thu Feb 12, 2009
 	o Add new friends_ids and followers_ids social graph methods
 	o Added tests for the above.
