@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.09
+# v2.10
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.09";
+$VERSION = "2.10";
 use 5.005;
 use strict;
 
@@ -16,7 +16,18 @@ use Carp;
 
 sub new {
     my $class = shift;
-    my %conf  = @_;
+
+    my %conf;
+
+    if ( scalar @_ == 1 ) {
+        if ( ref $_[0] ) {
+            %conf = %{ $_[0] };
+        } else {
+            croak "Bad argument \"" . $_[0] . "\" passed, please pass a hashref containing config values.";
+        }
+    } else {
+        %conf = @_;
+    }
 
     ### Add quick identica => 1 switch
 
@@ -454,7 +465,7 @@ BEGIN {
                     "location"    => 0,
                     "description" => 0,
                 },
-              },
+            },
             "update_profile_colors" => {
                 "blankargs" => 0,
                 "post"      => 1,
@@ -795,7 +806,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.09
+This document describes Net::Twitter version 2.10
 
 =head1 SYNOPSIS
 
