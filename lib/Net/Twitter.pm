@@ -1756,18 +1756,6 @@ maintenance window is scheduled.
 
 =back
 
-=head1 DEPENDENCIES
-
-=over
-
-=item L<LWP::UserAgent>
-
-=item L<URI::Escape>
-
-=item L<JSON::Any>
-
-=back
-
 =head1 BUGS AND LIMITATIONS
 
 Please report any bugs or feature requests to
