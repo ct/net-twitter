@@ -74,7 +74,11 @@ sub new {
 
     ### Create an LWP Object to work with
 
-    $conf{ua} = $conf{useragent_class}->new();
+    if ( ( $conf{useragent_args} ) and ( ref $conf{useragent_args} ) ) {
+        $conf{ua} = $conf{useragent_class}->new( %{$conf{useragent_args}} );
+    } else {
+        $conf{ua} = $conf{useragent_class}->new();
+    }
 
     $conf{username} = $conf{user} if defined $conf{user};
     $conf{password} = $conf{pass} if defined $conf{pass};
@@ -889,6 +893,15 @@ OPTIONAL: Sets the User Agent header in the HTTP request. If omitted, this will 
 
 OPTIONAL: An L<LWP::UserAgent> compatible class, e.g., L<LWP::UserAgent::POE>.
 If omitted, this will default to L<LWP::UserAgent>.
+
+=item C<useragent_args>
+
+OPTIONAL: A hashref passed to this option will be passed along to the C<LWP::UserAgent->new()> 
+call to specify its configuration. This will pass to whatever class is passed in 
+C<useragent_class>, if any. See the POD for L<LWP::UserAgent> for details.
+
+NOTE: Any value passed in this hashref for "agent" will be overwritten. If setting the
+useragent is necessary, use the C<useragent> option to C<Net::Twitter->new()>
 
 =item C<no_fallback>
 
