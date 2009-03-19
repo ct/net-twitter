@@ -2,7 +2,7 @@ NAME
     Net::Twitter - Perl interface to twitter.com
 
 VERSION
-    This document describes Net::Twitter version 2.10
+    This document describes Net::Twitter version 2.11
 
 SYNOPSIS
        #!/usr/bin/perl
@@ -76,6 +76,16 @@ METHODS AND ARGUMENTS
             OPTIONAL: An LWP::UserAgent compatible class, e.g.,
             LWP::UserAgent::POE. If omitted, this will default to
             LWP::UserAgent.
+
+        "useragent_args"
+            OPTIONAL: A hashref passed to this option will be passed along
+            to the UserAgent "new()" call to specify its configuration. This
+            will pass to whatever class is passed in "useragent_class", if
+            any. See the POD for LWP::UserAgent for details.
+
+            NOTE: Any value passed in this hashref for "agent" will be
+            overwritten. If setting the useragent is necessary, use the
+            "useragent" option to "new()"
 
         "no_fallback"
             OPTIONAL: If a "useragent_class" is specified but fails to load,
@@ -764,11 +774,6 @@ METHODS AND ARGUMENTS
     "downtime_schedule()"
         Returns the same text displayed on <http://twitter.com/home> when a
         maintenance window is scheduled.
-
-DEPENDENCIES
-    LWP::UserAgent
-    URI::Escape
-    JSON::Any
 
 BUGS AND LIMITATIONS
     Please report any bugs or feature requests to

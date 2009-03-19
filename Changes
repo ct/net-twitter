@@ -1,5 +1,10 @@
 Revision history for Net-Twitter
 
+2.11 -Thu Mar 19, 2009
+	o Added useragent_args to new() to allow passing args to the LWP::UA object
+	o Added test for above
+	o Removed POD about dependancies. 
+
 2.10 - Thu Feb 26, 2009
 	o Fix https://rt.cpan.org/Ticket/Display.html?id=43658 which proves I'm an idiot. The SYNOPSIS fix in 2.08
 		doesn't match up with reality. Passing args to new() with {} would break. This is now fixed.

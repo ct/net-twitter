@@ -896,12 +896,12 @@ If omitted, this will default to L<LWP::UserAgent>.
 
 =item C<useragent_args>
 
-OPTIONAL: A hashref passed to this option will be passed along to the C<LWP::UserAgent->new()> 
+OPTIONAL: A hashref passed to this option will be passed along to the UserAgent C<new()> 
 call to specify its configuration. This will pass to whatever class is passed in 
 C<useragent_class>, if any. See the POD for L<LWP::UserAgent> for details.
 
 NOTE: Any value passed in this hashref for "agent" will be overwritten. If setting the
-useragent is necessary, use the C<useragent> option to C<Net::Twitter->new()>
+useragent is necessary, use the C<useragent> option to C<new()>
 
 =item C<no_fallback>
 

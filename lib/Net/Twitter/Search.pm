@@ -1,11 +1,11 @@
 ##############################################################################
 # Net::Twitter::Search - Perl OO interface to www.identi.ca
-# v2.10
+# v2.11
 # Copyright (c) 2009 Chris Thompson and Brenda Wallace
 ##############################################################################
 
 package Net::Twitter::Search;
-$VERSION = "2.10";
+$VERSION = "2.11";
 use warnings;
 
 use Net::Twitter;
