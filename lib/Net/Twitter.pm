@@ -11,7 +11,7 @@ use strict;
 
 use URI::Escape;
 use JSON::Any 1.19;
-use LWP::UserAgent;
+use LWP::UserAgent 2.036;
 use Carp;
 
 sub new {
