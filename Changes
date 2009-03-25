@@ -1,16 +1,24 @@
 Revision history for Net-Twitter
 
-2.11 -Thu Mar 19, 2009
+2.12 - Wed Mar 25, 2009
+	o Removed test that uses show_progress arg to LWP::UserAgent, as this did not
+		exist until v5.815.
+	o Because of the above require LWP::UA of at least v2.032, as the two remaining 
+		tests are OK with that version.
+
+2.11 - Thu Mar 19, 2009
 	o Added useragent_args to new() to allow passing args to the LWP::UA object
 	o Added test for above
 	o Removed POD about dependancies. 
 
 2.10 - Thu Feb 26, 2009
-	o Fix https://rt.cpan.org/Ticket/Display.html?id=43658 which proves I'm an idiot. The SYNOPSIS fix in 2.08
-		doesn't match up with reality. Passing args to new() with {} would break. This is now fixed.
+	o Fix https://rt.cpan.org/Ticket/Display.html?id=43658 which proves I'm an idiot. 
+		The SYNOPSIS fix in 2.08 doesn't match up with reality. Passing args to 
+		new() with {} would break. This is now fixed.
 
 2.09 - Thu Feb 20, 2009
-	o Embarrassing. Since the very first 2.xx update_profile has been missing. This adds it back in and tests it.
+	o Embarrassing. Since the very first 2.xx update_profile has been missing. This 
+		adds it back in and tests it.
 	
 2.08 - Thu Feb 19, 2009
 	o Fixed ridiculously broken logic in get_error JSON deparse.
@@ -23,8 +31,9 @@ Revision history for Net-Twitter
 	o Added documentation about hashref passing needing {} specified.
 	
 2.06 - Mon Jan 26, 2009
-	o 2.05 had glitch which caused some methods like user_timeline to call the incorrect URL when called
-		with no args, returning the wrong user's timeline.
+	o 2.05 had glitch which caused some methods like user_timeline to call the 
+		incorrect URL when called with no args, returning the wrong user's 
+		timeline.
 	o Added test to prevent the above.
 	o Added Net::Twitter::Search, as I now have permissions.
 	o Added distribution of the local test that checks all arg combos.
