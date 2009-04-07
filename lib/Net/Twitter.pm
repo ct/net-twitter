@@ -123,6 +123,10 @@ sub new {
     $conf{response_code}   = undef;
     $conf{response_method} = undef;
 
+	$conf{rate_limit} = undef;
+	$conf{rate_limit_reset} = undef;
+	$conf{rate_limit_remaining} = undef;
+
     return bless {%conf}, $class;
 }
 
