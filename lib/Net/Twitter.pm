@@ -541,8 +541,7 @@ BEGIN {
                 $url .= $uri . ".json";
             }
 
-            ### Final Validation of $args, Drop args that are named but undefined, and complain when
-            ### bogus args are passed.
+            ### Drop args that are named but undefined.
 
             if ( !$self->{skip_arg_validation} ) {
                 foreach my $argkey ( sort keys %{$args} ) {
