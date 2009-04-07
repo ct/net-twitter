@@ -45,7 +45,7 @@ sub new {
     ### Set default Twitter search API URL
 
     $conf{searchapiurl} = 'http://search.twitter.com/' unless defined $conf{searchapiurl};
-    $conf{searchapiurl} .= '/' unless substr( $url, -1 ) eq "/";
+    $conf{searchapiurl} .= '/' unless substr( $conf{searchapiurl}, -1 ) eq "/";
 
     ### Set useragents, HTTP Headers, source codes.
     $conf{useragent} = "Net::Twitter/$Net::Twitter::VERSION (PERL)"
