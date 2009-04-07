@@ -12,6 +12,7 @@ use strict;
 use URI::Escape;
 use JSON::Any 1.19;
 use LWP::UserAgent 2.032;
+use Data::Dumper::Perltidy;
 use Carp;
 
 sub new {
@@ -92,15 +93,12 @@ sub new {
 
     $conf{no_force_auth} = '0' unless defined $conf{no_force_auth};
 
-    if ( $conf{no_force_auth} ) {
-        $conf{ua}->set_my_handler(
-            'request_prepare',
-            sub {
+    if ( !$conf{no_force_auth} ) {
+        $conf{ua}->add_handler(
+            'request_prepare' => sub {
                 my ( $request, $ua, $h ) = @_;
-                $request->authorization_basic( $ua->credentials( $h->{m_host_port}, $conf{apirealm} ) );
+                $request->authorization_basic( $conf{username}, $conf{pass} );
             },
-            m_host_port => $conf{apihost},
-            owner       => 'Net::Twitter force credentials'
         );
     }
 
@@ -150,31 +148,22 @@ sub new {
 ### Turn off forced auth
 
 sub no_force_auth {
-	my $self = shift;
-	$self->{ua}->set_my_handler(
-        'request_prepare',
-        undef,
-        m_host_port => $self->{apihost},
-        owner       => 'Net::Twitter force credentials'
-    );
+    my $self = shift;
+    $self->{ua}->remove_handler( "request_prepare", );
 }
 
 ### Turn on forced auth
 
 sub force_auth {
-	my $self = shift;
-	$self->{ua}->set_my_handler(
-        'request_prepare',
-        sub {
+    my $self = shift;
+
+    $self->{ua}->set_my_handler(
+        'request_prepare' => sub {
             my ( $request, $ua, $h ) = @_;
-            $request->authorization_basic( $ua->credentials( $h->{m_host_port}, $conf{apirealm} ) );
+            $request->authorization_basic( $self->{username}, $self->{pass} );
         },
-        m_host_port => $self->{apihost},
-        owner       => 'Net::Twitter force credentials'
     );
 }
-
-
 
 ### Return a shallow copy of the object to allow error handling when used in
 ### Parallel/Async setups like POE. Set response_error to undef to prevent
@@ -795,7 +784,7 @@ BEGIN {
                       "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
                     return $self->{error_return_val};
                 } else {
-                    if ( defined $retval->{error} ) {
+                    if ( ( ref $retval eq "HASH" ) and ( defined $retval->{error} ) ) {
                         $self->{response_code} = 503;
                         $self->{response_error} =
                           "TWITTER RETURNED SUCCESS BUT RESPONSE CONTAINED ERROR -" . $retval->{error};
