@@ -67,10 +67,10 @@ sub new {
     if ($@) {
 
         if ( ( defined $conf{no_fallback} ) and ( $conf{no_fallback} ) ) {
-            croak $conf{useragent_class} . " failed to load, and no_fallback enabled. Terminating.";
+            croak $conf{useragent_class} . "failed to load, and no_fallback enabled. Terminating.";
         }
 
-        carp $conf{useragent_class} . " failed to load, reverting to LWP::UserAgent";
+        carp $conf{useragent_class} . "failed to load, reverting to LWP::UserAgent";
         $conf{useragent_class} = "LWP::UserAgent";
     }
 
@@ -123,9 +123,9 @@ sub new {
     $conf{response_code}   = undef;
     $conf{response_method} = undef;
 
-	$conf{rate_limit} = undef;
-	$conf{rate_limit_reset} = undef;
-	$conf{rate_limit_remaining} = undef;
+    $conf{rate_limit}           = undef;
+    $conf{rate_limit_reset}     = undef;
+    $conf{rate_limit_remaining} = undef;
 
     return bless {%conf}, $class;
 }
@@ -620,13 +620,13 @@ This document describes Net::Twitter version 3.00
 
    use Net::Twitter;
 
-   my $twit = Net::Twitter->new({username=>" myuser ", password=>" mypass " });
+   my $twit = Net::Twitter->new({username=>"myuser", password=>"mypass"});
 
-   my $result = $twit->update({status => " My current Status "});
+   my $result = $twit->update({status =>"My current Status"});
 
-   my $twit->credentials(" otheruser ", " otherpass ");
+   my $twit->credentials("otheruser", "otherpass");
 
-   my $result = $twit->update({status => " Status for otheruser "});
+   my $result = $twit->update({status => "Status for otheruser"});
 
    my $result = $twitter->search('Albi the racist dragon');
 
@@ -634,7 +634,7 @@ This document describes Net::Twitter version 3.00
      my $speaker =  $tweet->{from_user};
      my $text = $tweet->{text};
      my $time = $tweet->{created_at};
-     print "$time < $speaker > $text \n ";
+     print "$time < $speaker > $text \n";
    }
 
     my $steve = $twitter->search('Steve');
@@ -656,15 +656,15 @@ Listed below are the methods available through the object.
 Please note that any method that takes a hashref as an argument must be called
 in the form:
 
-    $twit->method({arg => " value "});
+    $twit->method({arg => "value"});
 
     and not
 
-    $twit->method(arg => " value ");
+    $twit->method(arg => "value");
 
 If the curly brackets around the arguments are missing, the code which implements the
 convenience methods allowing you to specify a single argument as a string will interpret
-" arg " as your argument.
+"arg" as your argument.
 
 =over
 
@@ -679,17 +679,17 @@ Valid configuration items are:
 =item C<username>
 
 Username of your account at twitter.com. This is usually your email address.
-" user " is an alias for " username ".  REQUIRED.
+"user"is an alias for "username".  REQUIRED.
 
 =item C<password>
 
-Password of your account at twitter.com. " pass " is an alias for " password "
+Password of your account at twitter.com. "pass" is an alias for "password "
 REQUIRED.
 
 =item C<useragent>
 
 OPTIONAL: Sets the User Agent header in the HTTP request. If omitted, this will default to
-" Net::Twitter / $Net::Twitter::Version (Perl) "
+"Net::Twitter / $Net::Twitter::Version (Perl)"
 
 =item C<useragent_class>
 
@@ -702,7 +702,7 @@ OPTIONAL: A hashref passed to this option will be passed along to the UserAgent 
 call to specify its configuration. This will pass to whatever class is passed in 
 C<useragent_class>, if any. See the POD for L<LWP::UserAgent> for details.
 
-NOTE: Any value passed in this hashref for " agent " will be overwritten. If setting the
+NOTE: Any value passed in this hashref for "agent" will be overwritten. If setting the
 useragent is necessary, use the C<useragent> option to C<Net::Twitter->new()>
 
 =item C<no_fallback>
@@ -718,7 +718,7 @@ of "from web". Defaults to displaying "Perl Net::Twitter". Note: see Twitter FAQ
 your client source needs to be included at twitter manually.
 
 This value will be a code which is assigned to you by Twitter. For example, the
-default value is "twitterpm", which causes Twitter to display the "from Perl Net::Twitter" 
+default value is "twitterpm", which causes Twitter to display the "from Perl Net::Twitter"
 in your timeline. 
 
 Twitter claims that specifying a nonexistant code will cause the system to default to
@@ -731,7 +731,7 @@ OPTIONAL: If this is set to a true value calls to C<update> will not be sent wit
 =item C<clientname>
 
 OPTIONAL: Sets the X-Twitter-Client-Name: HTTP Header. If omitted, this defaults to
-" Perl Net::Twitter "
+"Perl Net::Twitter"
 
 =item C<clientver>
 
@@ -876,16 +876,16 @@ Returns status of a single tweet. The status' author will be returned inline.
  
 The argument is the ID or email address of the twitter user to pull, and is REQUIRED.
  
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
 
 =item C<destroy_status($id)>
  
 Destroys the status specified by the required ID parameter. The
 authenticating user must be the author of the specified status.
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
 
 =item C<user_timeline(...)>
 
@@ -919,12 +919,12 @@ OPTIONAL: Narrows the returned results to a certain number of statuses. This is 
 =item C<page>
  
 OPTIONAL: Gets the 20 next most recent statuses from the authenticating user and that user's
-friends, eg " page = 3 ".
+friends, eg "page=3".
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id ". If passed as a string, no other args can be specified.
  
  
 =item C<public_timeline()>
@@ -960,7 +960,7 @@ Narrows the returned results to a certain number of statuses. This is limited to
 =item C<page>
  
 Gets the 20 next most recent statuses from the authenticating user and that user's
-friends, eg " page = 3 ".
+friends, eg "page=3".
  
 =back
  
@@ -1015,12 +1015,12 @@ in order to retrieve that user's friends.
  
 =item C<page>
  
-OPTIONAL: Gets the 100 next most recent friends, eg " page = 3 ".
+OPTIONAL: Gets the 100 next most recent friends, eg "page=3".
  
 =back
  
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
 
 =item C<followers()>
  
@@ -1044,8 +1044,8 @@ OPTIONAL: Retrieves the next 100 followers.
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
  
 =item C<show_user()>
  
@@ -1071,8 +1071,8 @@ created, this method will include the location information for the user
 from twittervision.com, placing it inside the returned hashref under the
 key C<twittervision>.
  
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
 
  
 =back
@@ -1152,8 +1152,8 @@ REQUIRED: Text of direct message.
 Destroys the direct message specified in the required ID parameter. The
 authenticating user must be the recipient of the specified direct message.
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
 
 =back
  
@@ -1178,8 +1178,8 @@ OPTIONAL. Enable notifications for the target user in addition to becoming frien
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
 
 =item C<destroy_friend($id)>
  
@@ -1187,8 +1187,8 @@ Discontinues friendship with the user specified in the ID parameter as the
 authenticating user. Returns a hashref containing the unfriended user's information 
 when successful.
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
 
  
 =item C<relationship_exists($user_a, $user_b)>
@@ -1218,8 +1218,8 @@ in order to retrieve that user's friends.
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a
-hashref with a key called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a
+hashref with a key called "id". If passed as a string, no other args can be specified.
 If no args are passed, returns the list for the authenticating user.
 
 =item C<followers_ids()>
@@ -1237,8 +1237,8 @@ OPTIONAL: The ID or screen name of the user for whom to request a list of follow
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a
-hashref with a key called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a
+hashref with a key called "id". If passed as a string, no other args can be specified.
 If no args are passed, returns the list for the authenticating user.
  
 =back
@@ -1268,7 +1268,7 @@ the side of their profile and returned in various API methods.
 =item C<update_delivery_device($device)>
  
 Sets which device Twitter delivers updates to for the authenticating user.
-$device is required and must be one of: " sms ", " im ", or " none ". Sending none as the device
+$device is required and must be one of: "sms", "im", or "none". Sending none as the device
 parameter will disable IM or SMS updates.
  
 =item C<update_profile_colors(...)>
@@ -1316,10 +1316,10 @@ the rate limit.
  
 =item C<update_profile>
  
-Sets values that users are able to set under the " Account " tab of their settings page.
+Sets values that users are able to set under the "Account" tab of their settings page.
  
 Takes as an argument a hashref containing fields to be updated. Only the parameters specified
-will be updated. For example, to only update the " name " attribute include only that parameter 
+will be updated. For example, to only update the "name" attribute include only that parameter 
 in the hashref.
  
 =over
@@ -1334,7 +1334,7 @@ OPTIONAL: Email address. Maximum of 40 characters. Must be a valid email address
  
 =item C<url>
  
-OPTIONAL: Homepage URL. Maximum of 100 characters. Will be prepended with " http : //" if not present.
+OPTIONAL: Homepage URL. Maximum of 100 characters. Will be prepended with "http://" if not present.
  
 =item C<location>
  
@@ -1369,12 +1369,12 @@ statuses.
  
 =item C<page>
  
-OPTIONAL: Gets the 20 next most recent favorite statuses, eg " page = 3 ".
+OPTIONAL: Gets the 20 next most recent favorite statuses, eg "page=3".
 
 =back
  
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ". If passed as a string, no other args can be specified.
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id". If passed as a string, no other args can be specified.
 
  
 =item C<create_favorite()>
@@ -1391,8 +1391,8 @@ REQUIRED: The ID of the status to favorite.
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =item C<destroy_favorite()>
  
@@ -1407,8 +1407,8 @@ REQUIRED. The ID of the status to un-favorite.
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =back
  
@@ -1430,8 +1430,8 @@ REQUIRED: The ID or screen name of the user to receive notices from.
 
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =item C<disable_notifications()>
  
@@ -1448,8 +1448,8 @@ REQUIRED: The ID or screen name of the user to stop receiving notices from.
  
 =back
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 =back
  
@@ -1462,8 +1462,8 @@ called " id ".
 Blocks the user id passed as an argument from the authenticating user.
 Returns a hashref containing the user information for the blocked user when successful.
  
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
  
 You can find more information about blocking at
 L<http://help.twitter.com/index.php?pg=kb.page&id=69>.
@@ -1473,8 +1473,8 @@ L<http://help.twitter.com/index.php?pg=kb.page&id=69>.
 Un-blocks the user id passed as an argument from the authenticating user.
 Returns a hashref containing the user information for the blocked user when successful.
 
-This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
-called " id ".
+This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
+called "id".
 
 =back
  
@@ -1491,7 +1491,7 @@ Performs a search on http://search.twitter.com for your query string.
 
 This returns a hashref which is slightly different than the other methods such as public_timeline.
 The hashref contains a key named C<results> which contains an arrayref to an array of hashrefs, each
-hashref containing a single post. These hashrefs do not include the " user " item with the 
+hashref containing a single post. These hashrefs do not include the "user" item with the 
 posting user's information such as the *_timeline methods do.
 
 This method takes a required hashref as an argument:
@@ -1507,9 +1507,9 @@ at L<http://search.twitter.com/operators>. Please see below for information abou
 with Net::Twitter::Search. 
 
 Both q and query are aliases to the same argument. Specifying both will use
-the value specified for " query ". 
+the value specified for "query". 
 
-Please note that you cannot use the " near " search operator to specify arbitrary Lat/Long locations. 
+Please note that you cannot use the "near" search operator to specify arbitrary Lat/Long locations. 
 For this use the C<geocode> argument below.
 
 =item C<lang>
@@ -1532,15 +1532,13 @@ OPTIONAL: Restricts returned posts to those status ids greater than the given id
 =item C<geocode>
 
 OPTIONAL: Returns posts by users located within the radius of the given latitude/longitude, where the user's 
-location is taken from their Twitter profile. The format of the parameter value is " latitide, longitude,
-                            radius ", 
-with radius units specified as either " mi " (miles) or " km " (kilometers).
+location is taken from their Twitter profile. The format of the parameter value is "latitide,longitude,radius", 
+with radius units specified as either "mi" (miles) or "km" (kilometers).
 
 =item C<show_user>
 
-OPTIONAL: When set to a true boolean value C<show_user> will prepend " < username >
-                            : " to the beginning of the text of
-each post returned.
+OPTIONAL: When set to a true boolean value C<show_user> will prepend "<username>:" to the beginning of the 
+text of each post returned.
 
 =back 
 
@@ -1549,12 +1547,12 @@ each post returned.
 In order to maintain backwards compatibility with Net::Twitter::Search, the query/q arguments can be specified
 as plain text:
 
-    $res = $twit->search(" Farkle McFancypants ")
+    $res = $twit->search("Farkle McFancypants")
 
 In addition, you can, in this case, specify all of the above arguments in a hashref as the second argument
 to the search method.
 
-    $res = $twit->search(" Farkle McFancypants ", {lang => " en "})
+    $res = $twit->search("Farkle McFancypants", {lang => "en"})
     
 Any query/q arguments in the hashref passed in this manner will be ignored, and the module will
 proceed using the string passed in the first argument as the query.
@@ -1567,7 +1565,7 @@ proceed using the string passed in the first argument as the query.
  
 =item C<test()>
  
-Returns the string " ok " in the requested format with a 200 OK HTTP status
+Returns the string "ok" in the requested format with a 200 OK HTTP status
 code.
  
 =item C<downtime_schedule()>
@@ -1591,10 +1589,10 @@ You can track Net::Twitter development at http://github.com/ct/net-twitter/tree/
 
 Chris Thompson <cpan@cthompson.com>
 
-The test framework for Net::Twitter was written by Marc " semifor " Mims.
+The test framework for Net::Twitter was written by Marc "semifor" Mims.
 
 The framework of this module is shamelessly stolen from L<Net::AIML>. Big
-ups to Chris " perigrin " Prather for that.
+ups to Chris "perigrin" Prather for that.
        
 =head1 LICENCE AND COPYRIGHT
 
@@ -1609,7 +1607,7 @@ modify it under the same terms as Perl itself. See L<perlartistic>.
 BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
 OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
-PROVIDE THE SOFTWARE " AS IS " WITHOUT WARRANTY OF ANY KIND, EITHER
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
 ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
