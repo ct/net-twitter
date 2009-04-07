@@ -56,6 +56,8 @@ sub new {
     $conf{source} = 'twitterpm'
       unless defined $conf{source};    ### Make it say "From Net:Twitter"
 
+    $conf{no_source} = 0 unless defined $conf{no_source};
+
     ### Allow specifying a class other than LWP::UA
 
     $conf{no_fallback} = 0 unless defined $conf{no_fallback};
@@ -75,7 +77,7 @@ sub new {
     ### Create an LWP Object to work with
 
     if ( ( $conf{useragent_args} ) and ( ref $conf{useragent_args} ) ) {
-        $conf{ua} = $conf{useragent_class}->new( %{$conf{useragent_args}} );
+        $conf{ua} = $conf{useragent_class}->new( %{ $conf{useragent_args} } );
     } else {
         $conf{ua} = $conf{useragent_class}->new();
     }
@@ -662,7 +664,7 @@ BEGIN {
 
             ### Handle source arg for update method.
 
-            if ( $whoami eq "update" ) {
+            if ( ( $whoami eq "update" ) and ( !$self->{no_source} ) ) {
                 $args->{source} = $self->{source};
             }
 
@@ -921,6 +923,10 @@ Net::Twitter" in your timeline.
 
 Twitter claims that specifying a nonexistant code will cause the system to default to
 "from web". If you don't have a code from twitter, don't set one.
+
+=item C<no_source>
+
+OPTIONAL: If this is set to a true value calls to C<update> will not be sent with the source parameter.
 
 =item C<clientname>
 
