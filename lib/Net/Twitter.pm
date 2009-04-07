@@ -1,17 +1,17 @@
 ##############################################################################
 # Net::Twitter - Perl OO interface to www.twitter.com
-# v2.11
+# v2.13
 # Copyright (c) 2009 Chris Thompson
 ##############################################################################
 
 package Net::Twitter;
-$VERSION = "2.11";
+$VERSION = "2.13";
 use 5.005;
 use strict;
 
 use URI::Escape;
 use JSON::Any 1.19;
-use LWP::UserAgent;
+use LWP::UserAgent 2.032;
 use Carp;
 
 sub new {
@@ -56,6 +56,8 @@ sub new {
     $conf{source} = 'twitterpm'
       unless defined $conf{source};    ### Make it say "From Net:Twitter"
 
+    $conf{no_source} = 0 unless defined $conf{no_source};
+
     ### Allow specifying a class other than LWP::UA
 
     $conf{no_fallback} = 0 unless defined $conf{no_fallback};
@@ -75,7 +77,7 @@ sub new {
     ### Create an LWP Object to work with
 
     if ( ( $conf{useragent_args} ) and ( ref $conf{useragent_args} ) ) {
-        $conf{ua} = $conf{useragent_class}->new( %{$conf{useragent_args}} );
+        $conf{ua} = $conf{useragent_class}->new( %{ $conf{useragent_args} } );
     } else {
         $conf{ua} = $conf{useragent_class}->new();
     }
@@ -158,6 +160,21 @@ sub get_error {
 
     return $response;
 
+}
+
+sub rate_limit {
+    my $self = shift;
+    return $self->{rate_limit};
+}
+
+sub rate_limit_remaining {
+    my $self = shift;
+    return $self->{rate_limit_remaining};
+}
+
+sub rate_limit_reset {
+    my $self = shift;
+    return $self->{rate_limit_reset};
 }
 
 sub http_code {
@@ -287,281 +304,149 @@ BEGIN {
     *{_get_apicalls} = sub {
         my $api = {
             "public_timeline" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/statuses/public_timeline",
-                "args"      => {},
+                "post" => 0,
+                "uri"  => "/statuses/public_timeline",
             },
             "friends_timeline" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/statuses/friends_timeline",
-                "args"      => {
-                    "since"    => 0,
-                    "since_id" => 0,
-                    "count"    => 0,
-                    "page"     => 0,
-                },
+                "post" => 0,
+                "uri"  => "/statuses/friends_timeline",
             },
             "user_timeline" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/statuses/user_timeline/ID",
-                "args"      => {
-                    "id"       => 0,
-                    "since"    => 0,
-                    "since_id" => 0,
-                    "count"    => 0,
-                    "page"     => 0,
-                },
+                "post" => 0,
+                "uri"  => "/statuses/user_timeline/ID",
             },
             "show_status" => {
-                "blankargs" => 0,
-                "post"      => 0,
-                "uri"       => "/statuses/show/ID",
-                "args"      => { "id" => 1, },
+                "post" => 0,
+                "uri"  => "/statuses/show/ID",
             },
             "update" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/statuses/update",
-                "args"      => {
-                    "status"                => 1,
-                    "in_reply_to_status_id" => 0,
-                    "source"                => 0,
-                },
+                "post" => 1,
+                "uri"  => "/statuses/update",
             },
             "replies" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/statuses/replies",
-                "args"      => {
-                    "page"     => 0,
-                    "since"    => 0,
-                    "since_id" => 0,
-                },
+                "post" => 0,
+                "uri"  => "/statuses/replies",
             },
             "destroy_status" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/statuses/destroy/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/statuses/destroy/ID",
             },
             "friends" => {
                 "blankargs" => 1,
                 "post"      => 0,
                 "uri"       => "/statuses/friends/ID",
-                "args"      => {
-                    "id"    => 0,
-                    "page"  => 0,
-                    "since" => 0,
-                },
             },
             "followers" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/statuses/followers",
-                "args"      => {
-                    "id"   => 0,
-                    "page" => 0,
-                },
+                "post" => 0,
+                "uri"  => "/statuses/followers",
             },
             "show_user" => {
-                "blankargs" => 0,
-                "post"      => 0,
-                "uri"       => "/users/show/ID",
-                "args"      => {
-                    "id"    => 1,
-                    "email" => 1,
-                },
+                "post" => 0,
+                "uri"  => "/users/show/ID",
             },
             "direct_messages" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/direct_messages",
-                "args"      => {
-                    "since"    => 0,
-                    "since_id" => 0,
-                    "page"     => 0,
-                },
+                "post" => 0,
+                "uri"  => "/direct_messages",
             },
             "sent_direct_messages" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/direct_messages/sent",
-                "args"      => {
-                    "since"    => 0,
-                    "since_id" => 0,
-                    "page"     => 0,
-                },
+                "post" => 0,
+                "uri"  => "/direct_messages/sent",
             },
             "new_direct_message" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/direct_messages/new",
-                "args"      => {
-                    "user" => 1,
-                    "text" => 1,
-                },
+                "post" => 1,
+                "uri"  => "/direct_messages/new",
             },
             "destroy_direct_message" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/direct_messages/destroy/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/direct_messages/destroy/ID",
             },
             "create_friend" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/friendships/create/ID",
-                "args"      => {
-                    "id"     => 1,
-                    "follow" => 0,
-                },
+                "post" => 1,
+                "uri"  => "/friendships/create/ID",
             },
             "destroy_friend" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/friendships/destroy/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/friendships/destroy/ID",
             },
             "relationship_exists" => {
-                "blankargs" => 0,
-                "post"      => 0,
-                "uri"       => "/friendships/exists",
-                "args"      => {
-                    "user_a" => 1,
-                    "user_b" => 1,
-                },
+                "post" => 0,
+                "uri"  => "/friendships/exists",
             },
             "friends_ids" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/friends/ids/ID",
-                "args"      => { "id" => 0, },
+                "post" => 0,
+                "uri"  => "/friends/ids/ID",
             },
             "followers_ids" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/followers/ids/ID",
-                "args"      => { "id" => 0, },
+                "post" => 0,
+                "uri"  => "/followers/ids/ID",
             },
             "verify_credentials" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/account/verify_credentials",
-                "args"      => {},
+                "post" => 0,
+                "uri"  => "/account/verify_credentials",
             },
             "end_session" => {
-                "blankargs" => 1,
-                "post"      => 1,
-                "uri"       => "/account/end_session",
-                "args"      => {},
+                "post" => 1,
+                "uri"  => "/account/end_session",
             },
             "update_profile" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/account/update_profile",
-                "args"      => {
-                    "name"        => 0,
-                    "email"       => 0,
-                    "url"         => 0,
-                    "location"    => 0,
-                    "description" => 0,
-                },
+                "post" => 1,
+                "uri"  => "/account/update_profile",
             },
             "update_profile_colors" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/account/update_profile_colors",
-                "args"      => {
-                    "profile_background_color"     => 0,
-                    "profile_text_color"           => 0,
-                    "profile_link_color"           => 0,
-                    "profile_sidebar_fill_color"   => 0,
-                    "profile_sidebar_border_color" => 0,
-                },
+                "post" => 1,
+                "uri"  => "/account/update_profile_colors",
             },
             "update_profile_image" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/account/update_profile_image",
-                "args"      => { "image" => 1, },
+                "post" => 1,
+                "uri"  => "/account/update_profile_image",
             },
             "update_profile_background_image" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/account/update_profile_background_image",
-                "args"      => { "image" => 1, },
+                "post" => 1,
+                "uri"  => "/account/update_profile_background_image",
             },
             "update_delivery_device" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/account/update_delivery_device",
-                "args"      => { "device" => 1, },
+                "post" => 1,
+                "uri"  => "/account/update_delivery_device",
             },
             "rate_limit_status" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/account/rate_limit_status",
-                "args"      => {},
+                "post" => 0,
+                "uri"  => "/account/rate_limit_status",
             },
             "favorites" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/favorites",
-                "args"      => {
-                    "id"   => 0,
-                    "page" => 0,
-                },
+                "post" => 0,
+                "uri"  => "/favorites",
             },
             "create_favorite" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/favorites/create/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/favorites/create/ID",
             },
             "destroy_favorite" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/favorites/destroy/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/favorites/destroy/ID",
             },
             "enable_notifications" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/notifications/follow/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/notifications/follow/ID",
             },
             "disable_notifications" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/notifications/leave/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/notifications/leave/ID",
             },
             "create_block" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/blocks/create/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/blocks/create/ID",
             },
             "destroy_block" => {
-                "blankargs" => 0,
-                "post"      => 1,
-                "uri"       => "/blocks/destroy/ID",
-                "args"      => { "id" => 1, },
+                "post" => 1,
+                "uri"  => "/blocks/destroy/ID",
             },
             "test" => {
-                "blankargs" => 1,
-                "post"      => 0,
-                "uri"       => "/help/test",
-                "args"      => {},
+                "post" => 0,
+                "uri"  => "/help/test",
             },
             "downtime_schedule" => {
-                "blankargs" => 100,
-                "post"      => 0,
-                "uri"       => "/help/downtime_schedule",
-                "args"      => {},
+                "post" => 0,
+                "uri"  => "/help/downtime_schedule",
             },
         };
     };
@@ -589,20 +474,6 @@ BEGIN {
 
             ### Set the correct request type for this method
             my $reqtype = ( $method_def->{post} ) ? "POST" : "GET";
-
-            ### Check if no args sent and args are required.
-            if ( ( !defined $args ) && ( !$method_def->{blankargs} ) ) {
-                if ( $self->{die_on_validation} ) {
-                    croak "The method $whoami requires arguments and none specified. Terminating.";
-                } else {
-                    carp "The method $whoami requires arguments and none specified. Discarding request";
-                    $self->{response_error} = {
-                        "request" => $url,
-                        "error"   => "The method $whoami requires arguments and none specified."
-                    };
-                }
-                return $self->{error_return_val};
-            }
 
             ### For backwards compatibility we need to handle the user handing a single, scalar
             ### arg in, instead of a hashref. Since the methods that allowed this in 1.xx have
@@ -644,25 +515,12 @@ BEGIN {
                     $args = { "device" => $args };
                 } elsif ( $whoami eq "update_location" ) {
                     $args = { "location" => $args };
-                } else {
-                    ### $args is not a hashref and $whoami is not one of the legacy
-                    ### subs, so we punt.
-                    if ( $self->{die_on_validation} ) {
-                        croak "Argument is not a HASHREF. Terminating.";
-                    } else {
-                        carp "Argument is not a HASHREF. Discarding request";
-                        $self->{response_error} = {
-                            "request" => $url,
-                            "error"   => "Argument is not a HASHREF."
-                        };
-                    }
-                    return $self->{error_return_val};
                 }
             }
 
             ### Handle source arg for update method.
 
-            if ( $whoami eq "update" ) {
+            if ( ( $whoami eq "update" ) and ( !$self->{no_source} ) ) {
                 $args->{source} = $self->{source};
             }
 
@@ -672,73 +530,11 @@ BEGIN {
                 if ( defined $args->{id} ) {
                     $url .= $uri . "/" . delete( $args->{id} ) . ".json";
                     $seen_id++;
-                } elsif ( $whoami eq "show_user" ) {
-
-                    ### show_user requires either id or email, this workaround checks that email is
-                    ### passed if id is not.
-                    if ( !defined $args->{email} ) {
-                        carp "Either id or email is required by show_user, discarding request.";
-                        $self->{response_error} = {
-                            "request" => $method_def->{uri},
-                            "error"   => "Either id or email is required by show_user, discarding request.",
-                        };
-                        return $self->{error_return_val};
-                    }
-                    $url .= "$uri.json";
                 } else {
-
-                    ### No id field is found but may be optional. If so, skip id in the URL and just
-                    ### tack on .json, otherwise warn and return undef
-
-                    if ( $method_def->{args}->{id} ) {
-                        carp "The field id is required and not specified";
-                        $self->{response_error} = {
-                            "request" => $method_def->{uri},
-                            "error"   => "The field id is required and not specified",
-                        };
-                        return $self->{error_return_val};
-                    } else {
-                        $url .= $uri . ".json";
-                    }
+                    $url .= $uri . ".json";
                 }
             } else {
                 $url .= $uri . ".json";
-            }
-
-            ### Validate args. Don't validate if $args is undef, we've already checked that
-            ### undef is OK to pass up above
-            if ( defined $args ) {
-                foreach my $argname ( sort keys %{ $method_def->{args} } ) {
-                    if ( $whoami eq "show_user" ) {
-                        ### We already validated the wonky args to show_user above.
-                        next;
-                    }
-                    if ( ( $argname eq "id" ) and ($seen_id) ) {
-                        ### We've already handled id by putting it in the url, it doesn't
-                        ### go in the args.
-                        next;
-                    }
-                    if ( !$self->{skip_arg_validation} ) {
-
-                        if (    ( $method_def->{args}->{$argname} )
-                            and ( !defined $args->{$argname} ) )
-                        {
-                            if ( $self->{die_on_validation} ) {
-                                croak "The field $argname is required and not specified. Terminating.";
-                            } else {
-                                carp "The field $argname is required and not specified, discarding request.";
-                                $self->{response_error} = {
-                                    "request" => $url,
-                                    "error"   => "The field $argname is required and not specified"
-                                };
-                            }
-                            return $self->{error_return_val};
-                        }
-
-                    }
-
-                }
-
             }
 
             ### Final Validation of $args, Drop args that are named but undefined, and complain when
@@ -751,13 +547,6 @@ BEGIN {
                         $self->{response_error} = {
                             "request" => $url,
                             "error"   => "Argument $argkey specified as undef."
-                        };
-                        delete $args->{$argkey};
-                    } elsif ( !exists $method_def->{args}->{$argkey} ) {
-                        carp "Unknown argument $argkey passed, discarding.";
-                        $self->{response_error} = {
-                            "request" => $url,
-                            "error"   => "Unknown argument $argkey passed."
                         };
                         delete $args->{$argkey};
                     }
@@ -778,6 +567,10 @@ BEGIN {
             $self->{response_message} = $req->message;
             $self->{response_error}   = $req->content;
 
+            $self->{rate_limit}           = $req->header('X-RateLimit-Limit');
+            $self->{rate_limit_remaining} = $req->header('X-RateLimit-Remaining');
+            $self->{rate_limit_reset}     = $req->header('X-RateLimit-Reset');
+
             undef $retval;
 
             if ( $req->is_success ) {
@@ -785,13 +578,19 @@ BEGIN {
 
                 ### Trap a case where twitter could return a 200 success but give up badly formed JSON
                 ### which would cause it to die. This way it simply assigns undef to $retval
-                ### If this happens, response_code, response_message and response_error aren't going to
+                ### If this happens, response_code, response_message and response_error aren' t going to
                 ### have any indication what's wrong, so we prepend a statement to request_error.
 
                 if ( !defined $retval ) {
                     $self->{response_error} =
                       "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
                     return $self->{error_return_val};
+                } else {
+                    if ( defined $retval->{error} ) {
+                        $self->{response_code} = 503;
+                        $self->{response_error} =
+                          "TWITTER RETURNED SUCCESS BUT RESPONSE CONTAINED ERROR -" . $retval->{error};
+                    }
                 }
             }
 
@@ -810,7 +609,7 @@ Net::Twitter - Perl interface to twitter.com
 
 =head1 VERSION
 
-This document describes Net::Twitter version 2.11
+This document describes Net::Twitter version 2.13
 
 =head1 SYNOPSIS
 
@@ -818,13 +617,13 @@ This document describes Net::Twitter version 2.11
 
    use Net::Twitter;
 
-   my $twit = Net::Twitter->new({username=>"myuser", password=>"mypass" });
+   my $twit = Net::Twitter->new({username=>" myuser ", password=>" mypass " });
 
-   my $result = $twit->update({status => "My current Status"});
+   my $result = $twit->update({status => " My current Status "});
 
-   my $twit->credentials("otheruser", "otherpass");
+   my $twit->credentials(" otheruser ", " otherpass ");
 
-   my $result = $twit->update({status => "Status for otheruser"});
+   my $result = $twit->update({status => " Status for otheruser "});
 
    my $result = $twitter->search('Albi the racist dragon');
 
@@ -832,7 +631,7 @@ This document describes Net::Twitter version 2.11
      my $speaker =  $tweet->{from_user};
      my $text = $tweet->{text};
      my $time = $tweet->{created_at};
-     print "$time <$speaker> $text\n";
+     print "$time < $speaker > $text \n ";
    }
 
     my $steve = $twitter->search('Steve');
@@ -854,15 +653,15 @@ Listed below are the methods available through the object.
 Please note that any method that takes a hashref as an argument must be called
 in the form:
 
-    $twit->method({arg => "value"});
+    $twit->method({arg => " value "});
 
     and not
 
-    $twit->method(arg => "value");
+    $twit->method(arg => " value ");
 
 If the curly brackets around the arguments are missing, the code which implements the
 convenience methods allowing you to specify a single argument as a string will interpret
-"arg" as your argument.
+" arg " as your argument.
 
 =over
 
@@ -877,17 +676,17 @@ Valid configuration items are:
 =item C<username>
 
 Username of your account at twitter.com. This is usually your email address.
-"user" is an alias for "username".  REQUIRED.
+" user " is an alias for " username ".  REQUIRED.
 
 =item C<password>
 
-Password of your account at twitter.com. "pass" is an alias for "password"
+Password of your account at twitter.com. " pass " is an alias for " password "
 REQUIRED.
 
 =item C<useragent>
 
 OPTIONAL: Sets the User Agent header in the HTTP request. If omitted, this will default to
-"Net::Twitter/$Net::Twitter::Version (Perl)"
+" Net::Twitter / $Net::Twitter::Version (Perl) "
 
 =item C<useragent_class>
 
@@ -900,7 +699,7 @@ OPTIONAL: A hashref passed to this option will be passed along to the C<LWP::Use
 call to specify its configuration. This will pass to whatever class is passed in 
 C<useragent_class>, if any. See the POD for L<LWP::UserAgent> for details.
 
-NOTE: Any value passed in this hashref for "agent" will be overwritten. If setting the
+NOTE: Any value passed in this hashref for " agent " will be overwritten. If setting the
 useragent is necessary, use the C<useragent> option to C<Net::Twitter->new()>
 
 =item C<no_fallback>
@@ -911,21 +710,25 @@ value, the C<new> method will cause the code to C<die>
 
 =item C<source>
 
-OPTIONAL: Sets the source name, so messages will appear as "from <source>" instead
-of "from web". Defaults to displaying "Perl Net::Twitter". Note: see Twitter FAQ,
+OPTIONAL: Sets the source name, so messages will appear as " from <source>" instead
+of " from web ". Defaults to displaying " Perl Net::Twitter ". Note: see Twitter FAQ,
 your client source needs to be included at twitter manually.
 
 This value will be a code which is assigned to you by Twitter. For example, the
-default value is "twitterpm", which causes Twitter to display the "from Perl
-Net::Twitter" in your timeline. 
+default value is " twitterpm ", which causes Twitter to display the " from Perl Net::Twitter
+                              " in your timeline. 
 
 Twitter claims that specifying a nonexistant code will cause the system to default to
-"from web". If you don't have a code from twitter, don't set one.
+" from web ". If you don't have a code from twitter, don't set one.
+
+=item C<no_source>
+
+OPTIONAL: If this is set to a true value calls to C<update> will not be sent wi
 
 =item C<clientname>
 
 OPTIONAL: Sets the X-Twitter-Client-Name: HTTP Header. If omitted, this defaults to
-"Perl Net::Twitter"
+" Perl Net::Twitter "
 
 =item C<clientver>
 
@@ -1070,16 +873,16 @@ Returns status of a single tweet. The status' author will be returned inline.
  
 The argument is the ID or email address of the twitter user to pull, and is REQUIRED.
  
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
 
 =item C<destroy_status($id)>
  
 Destroys the status specified by the required ID parameter. The
 authenticating user must be the author of the specified status.
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
 
 =item C<user_timeline(...)>
 
@@ -1113,12 +916,12 @@ OPTIONAL: Narrows the returned results to a certain number of statuses. This is 
 =item C<page>
  
 OPTIONAL: Gets the 20 next most recent statuses from the authenticating user and that user's
-friends, eg "page=3".
+friends, eg " page = 3 ".
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ". If passed as a string, no other args can be specified.
  
  
 =item C<public_timeline()>
@@ -1154,7 +957,7 @@ Narrows the returned results to a certain number of statuses. This is limited to
 =item C<page>
  
 Gets the 20 next most recent statuses from the authenticating user and that user's
-friends, eg "page=3".
+friends, eg " page = 3 ".
  
 =back
  
@@ -1209,12 +1012,12 @@ in order to retrieve that user's friends.
  
 =item C<page>
  
-OPTIONAL: Gets the 100 next most recent friends, eg "page=3".
+OPTIONAL: Gets the 100 next most recent friends, eg " page = 3 ".
  
 =back
  
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ". If passed as a string, no other args can be specified.
 
 =item C<followers()>
  
@@ -1238,8 +1041,8 @@ OPTIONAL: Retrieves the next 100 followers.
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ". If passed as a string, no other args can be specified.
  
 =item C<show_user()>
  
@@ -1265,8 +1068,8 @@ created, this method will include the location information for the user
 from twittervision.com, placing it inside the returned hashref under the
 key C<twittervision>.
  
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ". If passed as a string, no other args can be specified.
 
  
 =back
@@ -1346,8 +1149,8 @@ REQUIRED: Text of direct message.
 Destroys the direct message specified in the required ID parameter. The
 authenticating user must be the recipient of the specified direct message.
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
 
 =back
  
@@ -1372,8 +1175,8 @@ OPTIONAL. Enable notifications for the target user in addition to becoming frien
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ". If passed as a string, no other args can be specified.
 
 =item C<destroy_friend($id)>
  
@@ -1381,8 +1184,8 @@ Discontinues friendship with the user specified in the ID parameter as the
 authenticating user. Returns a hashref containing the unfriended user's information 
 when successful.
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
 
  
 =item C<relationship_exists($user_a, $user_b)>
@@ -1412,8 +1215,8 @@ in order to retrieve that user's friends.
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a
-hashref with a key called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a
+hashref with a key called " id ". If passed as a string, no other args can be specified.
 If no args are passed, returns the list for the authenticating user.
 
 =item C<followers_ids()>
@@ -1431,8 +1234,8 @@ OPTIONAL: The ID or screen name of the user for whom to request a list of follow
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a
-hashref with a key called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a
+hashref with a key called " id ". If passed as a string, no other args can be specified.
 If no args are passed, returns the list for the authenticating user.
  
 =back
@@ -1462,7 +1265,7 @@ the side of their profile and returned in various API methods.
 =item C<update_delivery_device($device)>
  
 Sets which device Twitter delivers updates to for the authenticating user.
-$device is required and must be one of: "sms", "im", or "none". Sending none as the device
+$device is required and must be one of: " sms ", " im ", or " none ". Sending none as the device
 parameter will disable IM or SMS updates.
  
 =item C<update_profile_colors(...)>
@@ -1510,10 +1313,10 @@ the rate limit.
  
 =item C<update_profile>
  
-Sets values that users are able to set under the "Account" tab of their settings page.
+Sets values that users are able to set under the " Account " tab of their settings page.
  
 Takes as an argument a hashref containing fields to be updated. Only the parameters specified
-will be updated. For example, to only update the "name" attribute include only that parameter 
+will be updated. For example, to only update the " name " attribute include only that parameter 
 in the hashref.
  
 =over
@@ -1528,7 +1331,7 @@ OPTIONAL: Email address. Maximum of 40 characters. Must be a valid email address
  
 =item C<url>
  
-OPTIONAL: Homepage URL. Maximum of 100 characters. Will be prepended with "http://" if not present.
+OPTIONAL: Homepage URL. Maximum of 100 characters. Will be prepended with " http : //" if not present.
  
 =item C<location>
  
@@ -1563,12 +1366,12 @@ statuses.
  
 =item C<page>
  
-OPTIONAL: Gets the 20 next most recent favorite statuses, eg "page=3".
+OPTIONAL: Gets the 20 next most recent favorite statuses, eg " page = 3 ".
 
 =back
  
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id". If passed as a string, no other args can be specified.
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ". If passed as a string, no other args can be specified.
 
  
 =item C<create_favorite()>
@@ -1585,8 +1388,8 @@ REQUIRED: The ID of the status to favorite.
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
  
 =item C<destroy_favorite()>
  
@@ -1601,8 +1404,8 @@ REQUIRED. The ID of the status to un-favorite.
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
  
 =back
  
@@ -1624,8 +1427,8 @@ REQUIRED: The ID or screen name of the user to receive notices from.
 
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
  
 =item C<disable_notifications()>
  
@@ -1642,8 +1445,8 @@ REQUIRED: The ID or screen name of the user to stop receiving notices from.
  
 =back
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
  
 =back
  
@@ -1656,8 +1459,8 @@ called "id".
 Blocks the user id passed as an argument from the authenticating user.
 Returns a hashref containing the user information for the blocked user when successful.
  
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
  
 You can find more information about blocking at
 L<http://help.twitter.com/index.php?pg=kb.page&id=69>.
@@ -1667,8 +1470,8 @@ L<http://help.twitter.com/index.php?pg=kb.page&id=69>.
 Un-blocks the user id passed as an argument from the authenticating user.
 Returns a hashref containing the user information for the blocked user when successful.
 
-This method can take the "id" argument passed to it either as a single string, or in a hashref with a key
-called "id".
+This method can take the " id " argument passed to it either as a single string, or in a hashref with a key
+called " id ".
 
 =back
  
@@ -1685,7 +1488,7 @@ Performs a search on http://search.twitter.com for your query string.
 
 This returns a hashref which is slightly different than the other methods such as public_timeline.
 The hashref contains a key named C<results> which contains an arrayref to an array of hashrefs, each
-hashref containing a single post. These hashrefs do not include the "user" item with the 
+hashref containing a single post. These hashrefs do not include the " user " item with the 
 posting user's information such as the *_timeline methods do.
 
 This method takes a required hashref as an argument:
@@ -1701,9 +1504,9 @@ at L<http://search.twitter.com/operators>. Please see below for information abou
 with Net::Twitter::Search. 
 
 Both q and query are aliases to the same argument. Specifying both will use
-the value specified for "query". 
+the value specified for " query ". 
 
-Please note that you cannot use the "near" search operator to specify arbitrary Lat/Long locations. 
+Please note that you cannot use the " near " search operator to specify arbitrary Lat/Long locations. 
 For this use the C<geocode> argument below.
 
 =item C<lang>
@@ -1726,12 +1529,14 @@ OPTIONAL: Restricts returned posts to those status ids greater than the given id
 =item C<geocode>
 
 OPTIONAL: Returns posts by users located within the radius of the given latitude/longitude, where the user's 
-location is taken from their Twitter profile. The format of the parameter value is "latitide,longitude,radius", 
-with radius units specified as either "mi" (miles) or "km" (kilometers).
+location is taken from their Twitter profile. The format of the parameter value is " latitide, longitude,
+                            radius ", 
+with radius units specified as either " mi " (miles) or " km " (kilometers).
 
 =item C<show_user>
 
-OPTIONAL: When set to a true boolean value C<show_user> will prepend "<username>:" to the beginning of the text of
+OPTIONAL: When set to a true boolean value C<show_user> will prepend " < username >
+                            : " to the beginning of the text of
 each post returned.
 
 =back 
@@ -1741,12 +1546,12 @@ each post returned.
 In order to maintain backwards compatibility with Net::Twitter::Search, the query/q arguments can be specified
 as plain text:
 
-    $res = $twit->search("Farkle McFancypants")
+    $res = $twit->search(" Farkle McFancypants ")
 
 In addition, you can, in this case, specify all of the above arguments in a hashref as the second argument
 to the search method.
 
-    $res = $twit->search("Farkle McFancypants", {lang => "en"})
+    $res = $twit->search(" Farkle McFancypants ", {lang => " en "})
     
 Any query/q arguments in the hashref passed in this manner will be ignored, and the module will
 proceed using the string passed in the first argument as the query.
@@ -1759,7 +1564,7 @@ proceed using the string passed in the first argument as the query.
  
 =item C<test()>
  
-Returns the string "ok" in the requested format with a 200 OK HTTP status
+Returns the string " ok " in the requested format with a 200 OK HTTP status
 code.
  
 =item C<downtime_schedule()>
@@ -1783,10 +1588,10 @@ You can track Net::Twitter development at http://github.com/ct/net-twitter/tree/
 
 Chris Thompson <cpan@cthompson.com>
 
-The test framework for Net::Twitter was written by Marc "semifor" Mims.
+The test framework for Net::Twitter was written by Marc " semifor " Mims.
 
 The framework of this module is shamelessly stolen from L<Net::AIML>. Big
-ups to Chris "perigrin" Prather for that.
+ups to Chris " perigrin " Prather for that.
        
 =head1 LICENCE AND COPYRIGHT
 
@@ -1801,7 +1606,7 @@ modify it under the same terms as Perl itself. See L<perlartistic>.
 BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
 OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
-PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+PROVIDE THE SOFTWARE " AS IS " WITHOUT WARRANTY OF ANY KIND, EITHER
 EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
 ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH

@@ -4,7 +4,7 @@ use inc::Module::Install;
 name 'Net-Twitter';
 all_from       'lib/Net/Twitter.pm';
 
-requires 'LWP::UserAgent' => 0;
+requires 'LWP::UserAgent' => 2.032;
 requires 'URI::Escape'    => 0;
 requires 'JSON::Any'      => '1.19';
 
