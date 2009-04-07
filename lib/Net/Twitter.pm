@@ -796,6 +796,105 @@ BEGIN {
 
           }
     }
+
+sub arbitrary {
+	my $methodname = shift;
+	my $apiurl = shift;
+	my $post = shift;
+	$post = 0 unless (defined $post);
+	
+    *{$methodname} = sub {
+          my $whoami;
+          my $url     = $self->{apiurl};
+		  my $apiuri     = eval {$apiurl};
+          my $seen_id = 0;
+          my $retval;
+		  my $args = shift;
+		
+          ### Store the method name, since a sub doesn't know it's name without
+          ### a bit of work and more dependancies than are really prudent.
+          eval { $whoami = $methodname };
+
+          ### Set the correct request type for this method
+          my $reqtype = eval {( $post ) ? "POST" : "GET";}
+
+          ### Create the URL. If it ends in /ID it needs the id param substituted
+          ### into the URL and not as an arg.
+          if ( ( my $uri = $apiuri ) =~ s|/ID|| ) {
+              if ( defined $args->{id} ) {
+                  $url .= $uri . "/" . delete( $args->{id} ) . ".json";
+                  $seen_id++;
+              } else {
+                  $url .= $uri . ".json";
+              }
+          } else {
+              $url .= $uri . ".json";
+          }
+
+          ### Drop args that are named but undefined.
+
+          if ( !$self->{skip_arg_validation} ) {
+              foreach my $argkey ( sort keys %{$args} ) {
+                  if ( !defined $args->{$argkey} ) {
+                      carp "Argument $argkey specified as undef, discarding.";
+                      $self->{response_error} = {
+                          "request" => $url,
+                          "error"   => "Argument $argkey specified as undef."
+                      };
+                      delete $args->{$argkey};
+                  }
+              }
+          }
+
+          ### Send the LWP request
+          my $req;
+          if ( $reqtype eq 'POST' ) {
+              $req = $self->{ua}->post( $url, $args );
+          } else {
+              my $uri = URI->new($url);
+              $uri->query_form($args);
+              $req = $self->{ua}->get($uri);
+          }
+
+          $self->{response_code}    = $req->code;
+          $self->{response_message} = $req->message;
+          $self->{response_error}   = $req->content;
+
+          $self->{rate_limit}           = $req->header('X-RateLimit-Limit');
+          $self->{rate_limit_remaining} = $req->header('X-RateLimit-Remaining');
+          $self->{rate_limit_reset}     = $req->header('X-RateLimit-Reset');
+
+          undef $retval;
+
+          if ( $req->is_success ) {
+              $retval = eval { JSON::Any->jsonToObj( $req->content ) };
+
+              ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+              ### which would cause it to die. This way it simply assigns undef to $retval
+              ### If this happens, response_code, response_message and response_error aren' t going to
+              ### have any indication what's wrong, so we prepend a statement to request_error.
+
+              if ( !defined $retval ) {
+                  $self->{response_error} =
+                    "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+                  return $self->{error_return_val};
+              } else {
+                  if ( ( ref $retval eq "HASH" ) and ( defined $retval->{error} ) ) {
+                      $self->{response_code} = 503;
+                      $self->{response_error} =
+                        "TWITTER RETURNED SUCCESS BUT RESPONSE CONTAINED ERROR -" . $retval->{error};
+                  }
+              }
+          }
+
+          return $retval;
+
+        }
+
+	
+	}
+}
+
 }
 
 1;
