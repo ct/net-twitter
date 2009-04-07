@@ -679,11 +679,11 @@ Valid configuration items are:
 =item C<username>
 
 Username of your account at twitter.com. This is usually your email address.
-"user"is an alias for "username".  REQUIRED.
+"user" is an alias for "username".  REQUIRED.
 
 =item C<password>
 
-Password of your account at twitter.com. "pass" is an alias for "password "
+Password of your account at twitter.com. "pass" is an alias for "password"
 REQUIRED.
 
 =item C<useragent>
