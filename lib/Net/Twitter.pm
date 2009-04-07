@@ -44,7 +44,8 @@ sub new {
 
     ### Set default Twitter search API URL
 
-    $conf{searchapiurl} = 'http://search.twitter.com/search.json' unless defined $conf{searchapiurl};
+    $conf{searchapiurl} = 'http://search.twitter.com/' unless defined $conf{searchapiurl};
+    $conf{searchapiurl} .= '/' unless substr( $url, -1 ) eq "/";
 
     ### Set useragents, HTTP Headers, source codes.
     $conf{useragent} = "Net::Twitter/$Net::Twitter::VERSION (PERL)"
@@ -221,7 +222,7 @@ sub update_twittervision {
 sub search {
     my $self = shift;
     my $args = shift;
-    my $url  = $self->{searchapiurl} . "?";
+    my $url  = $self->{searchapiurl} . "/search.json?";
     my $retval;
 
     ### Return if no args specified.
@@ -297,6 +298,164 @@ sub search {
     }
     return $retval;
 }
+
+sub trends {
+    my $self = shift;
+    my $args = shift;
+    my $url  = $self->{searchapiurl} . "/trends.json";
+    my $retval;
+
+    my $req = $self->{ua}->get($url);
+
+    $self->{response_code}    = $req->code;
+    $self->{response_message} = $req->message;
+    $self->{response_error}   = $req->content;
+
+    undef $retval;
+
+    ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+    ### which would cause it to die. This way it simply assigns undef to $retval
+    ### If this happens, response_code, response_message and response_error aren't going to
+    ### have any indication what's wrong, so we prepend a statement to request_error.
+
+    if ( $req->is_success ) {
+        $retval = eval { JSON::Any->jsonToObj( $req->content ) };
+
+        if ( !defined $retval ) {
+            $self->{response_error} =
+              "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+            return $self->{error_return_val};
+        }
+    }
+    return $retval;
+}
+
+sub current_trends {
+    my $self = shift;
+    my $args = shift;
+    my $url  = $self->{searchapiurl} . "/trends/current.json";
+    my $retval;
+
+	if (defined $args) {
+		$url .= "?"
+	}
+
+    foreach my $argname ( sort keys %{$args} ) {
+        # drop arguments with undefined values
+        next unless defined $args->{$argname};
+        $url .= "&" unless substr( $url, -1 ) eq "?";
+        $url .= $argname . "=" . uri_escape( $args->{$argname} );
+    }
+
+    my $req = $self->{ua}->get($url);
+
+    $self->{response_code}    = $req->code;
+    $self->{response_message} = $req->message;
+    $self->{response_error}   = $req->content;
+
+    undef $retval;
+
+    ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+    ### which would cause it to die. This way it simply assigns undef to $retval
+    ### If this happens, response_code, response_message and response_error aren't going to
+    ### have any indication what's wrong, so we prepend a statement to request_error.
+
+    if ( $req->is_success ) {
+        $retval = eval { JSON::Any->jsonToObj( $req->content ) };
+
+        if ( !defined $retval ) {
+            $self->{response_error} =
+              "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+            return $self->{error_return_val};
+        }
+    }
+    return $retval;
+}
+
+sub daily_trends {
+    my $self = shift;
+    my $args = shift;
+    my $url  = $self->{searchapiurl} . "/trends/daily.json";
+    my $retval;
+
+	if (defined $args) {
+		$url .= "?"
+	}
+
+    foreach my $argname ( sort keys %{$args} ) {
+        # drop arguments with undefined values
+        next unless defined $args->{$argname};
+        $url .= "&" unless substr( $url, -1 ) eq "?";
+        $url .= $argname . "=" . uri_escape( $args->{$argname} );
+    }
+
+    my $req = $self->{ua}->get($url);
+
+    $self->{response_code}    = $req->code;
+    $self->{response_message} = $req->message;
+    $self->{response_error}   = $req->content;
+
+    undef $retval;
+
+    ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+    ### which would cause it to die. This way it simply assigns undef to $retval
+    ### If this happens, response_code, response_message and response_error aren't going to
+    ### have any indication what's wrong, so we prepend a statement to request_error.
+
+    if ( $req->is_success ) {
+        $retval = eval { JSON::Any->jsonToObj( $req->content ) };
+
+        if ( !defined $retval ) {
+            $self->{response_error} =
+              "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+            return $self->{error_return_val};
+        }
+    }
+    return $retval;
+}
+
+sub weekly_trends {
+    my $self = shift;
+    my $args = shift;
+    my $url  = $self->{searchapiurl} . "/trends/weekly.json";
+    my $retval;
+
+	if (defined $args) {
+		$url .= "?"
+	}
+
+    foreach my $argname ( sort keys %{$args} ) {
+        # drop arguments with undefined values
+        next unless defined $args->{$argname};
+        $url .= "&" unless substr( $url, -1 ) eq "?";
+        $url .= $argname . "=" . uri_escape( $args->{$argname} );
+    }
+
+    my $req = $self->{ua}->get($url);
+
+    $self->{response_code}    = $req->code;
+    $self->{response_message} = $req->message;
+    $self->{response_error}   = $req->content;
+
+    undef $retval;
+
+    ### Trap a case where twitter could return a 200 success but give up badly formed JSON
+    ### which would cause it to die. This way it simply assigns undef to $retval
+    ### If this happens, response_code, response_message and response_error aren't going to
+    ### have any indication what's wrong, so we prepend a statement to request_error.
+
+    if ( $req->is_success ) {
+        $retval = eval { JSON::Any->jsonToObj( $req->content ) };
+
+        if ( !defined $retval ) {
+            $self->{response_error} =
+              "TWITTER RETURNED SUCCESS BUT PARSING OF THE RESPONSE FAILED - " . $req->content;
+            return $self->{error_return_val};
+        }
+    }
+    return $retval;
+}
+
 
 ### Load method data into %apicalls at runtime.
 
