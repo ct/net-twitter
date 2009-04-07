@@ -941,6 +941,17 @@ your friends.
 You can view the latest status of Net::Twitter on it's own twitter timeline
 at http://twitter.com/net_twitter
 
+=head1 NEW IN 3.00
+
+Starting with version 3.00 the internals of Net::Twitter have been revamped.
+
+The largest change is the complete removal of argument validation. Another major
+change is that in order to correctly map the Twitter API the module now, by default,
+sends authentication information with every request, whether it's prompted for it or not.
+
+These changes should be invisible to the end user. For a full description of what has
+changed and what it will impact, see L<http://www.net-twitter.info/3.00/>
+
 =head1 METHODS AND ARGUMENTS
 
 Listed below are the methods available through the object.
@@ -1072,21 +1083,6 @@ enabled, the C<show_user> method will include relevant location data in
 its response hashref. Also, the C<update_twittervision> method will
 allow setting of the current location.
 
-=item C<skip_arg_validation>
-
-OPTIONAL: Beginning in 2.00, Net::Twitter will validate arguments passed to the various API methods, 
-flagging required args that were not passed, and discarding args passed that do not exist in the API 
-specification. Passing a boolean True for skip_arg_validation into new() will skip this validation
-process entirely and allow requests to proceed regardless of the args passed. This defaults to false.
-
-=item C<die_on_validation>
-
-OPTIONAL: In the event that the arguments passed to a method do not pass the validation process listed
-above, the default action will be to warn the user, make the error readable through the get_error method
-listed below, and to return undef to the caller. Passing a boolean true value for die_on_validation to
-new() will change this behavior to simply executing a die() with the appropriate error message. This
-defaults to false.
-
 =item C<arrayref_on_error>
 
 OPTIONAL: By default any methods which find an error, whether from twitter or from bad args, will 
@@ -1108,8 +1104,18 @@ clones.
  
 Change the credentials for logging into twitter. This is helpful when managing
 multiple accounts.
- 
+
 C<apirealm> and C<apihost> are optional and will default to the existing settings if omitted.
+
+=item C<no_force_args()>
+ 
+Toggles arg forcing to off. Once this or C<force_args> are called, the value for C<no_force_args> passed
+to C<new()> is overwritten.
+
+=item C<force_args()>
+
+Toggles arg forcing to on. Once this or C<no_force_args> are called, the value for C<no_force_args> passed
+to C<new()> is overwritten.
  
 =item C<http_code>
  
@@ -1599,12 +1605,29 @@ Updates the authenticating user's profile background image.
 This takes as a required argument a GIF, JPG or PNG image, no larger than 800k in size. 
 Expects raw image data, not a pathname or URL to the image.
 
+=item C<rate_limit>
+
+This pulls your hourly rate limit out of the headers returned from requests. This value is
+a scalar containing the number of requests you are allowed per hour.
+
+=item C<rate_limit_remaining>
+
+This pulls your remaining requests for the hour out of the headers returned from requests. 
+This value is a scalar containing the number of requests remaining this hour.
+
+=item C<rate_limit_reset>
+
+This pulls the time at which your rate limit will reset to full. This value is
+a scalar containing the number seconds since epoch of the time of the reset. This can be
+piped through C<localtime> to get a human-readable result.
+
 =item C<rate_limit_status>
- 
-Returns the remaining number of API requests available to the authenticating
+
+DEPRECATED: Returns the remaining number of API requests available to the authenticating
 user before the API limit is reached for the current hour. Calls to
 rate_limit_status require authentication, but will not count against
-the rate limit.
+the rate limit. This item makes a separate call to Twitter. The three C<rate_limit_*> calls
+above should be used instead, as this saves a round trip.
  
 =item C<update_profile>
  
@@ -1774,6 +1797,8 @@ called "id".
 
 As of version 2.00, Net::Twitter implements the search functionality of Twitter,
 using code derived from Net::Twitter::Search by Brenda Wallace.
+
+As of version 3.00, Net::Twitter implements the new trends functions of the search API.
 
 =over
 
