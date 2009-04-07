@@ -88,6 +88,22 @@ sub new {
 
     $conf{ua}->credentials( $conf{apihost}, $conf{apirealm}, $conf{username}, $conf{password} );
 
+    ### Force credentials to always be sent
+
+    $conf{no_force_auth} = '0' unless defined $conf{no_force_auth};
+
+    if ( $conf{no_force_auth} ) {
+        $conf{ua}->set_my_handler(
+            'request_prepare',
+            sub {
+                my ( $request, $ua, $h ) = @_;
+                $request->authorization_basic( $ua->credentials( $h->{m_host_port}, $conf{apirealm} ) );
+            },
+            m_host_port => $conf{apihost},
+            owner       => 'Net::Twitter force credentials'
+        );
+    }
+
     $conf{ua}->agent( $conf{useragent} );
     $conf{ua}->default_header( "X-Twitter-Client:"         => $conf{clientname} );
     $conf{ua}->default_header( "X-Twitter-Client-Version:" => $conf{clientver} );
@@ -130,6 +146,35 @@ sub new {
 
     return bless {%conf}, $class;
 }
+
+### Turn off forced auth
+
+sub no_force_auth {
+	my $self = shift;
+	$self->{ua}->set_my_handler(
+        'request_prepare',
+        undef,
+        m_host_port => $self->{apihost},
+        owner       => 'Net::Twitter force credentials'
+    );
+}
+
+### Turn on forced auth
+
+sub force_auth {
+	my $self = shift;
+	$self->{ua}->set_my_handler(
+        'request_prepare',
+        sub {
+            my ( $request, $ua, $h ) = @_;
+            $request->authorization_basic( $ua->credentials( $h->{m_host_port}, $conf{apirealm} ) );
+        },
+        m_host_port => $self->{apihost},
+        owner       => 'Net::Twitter force credentials'
+    );
+}
+
+
 
 ### Return a shallow copy of the object to allow error handling when used in
 ### Parallel/Async setups like POE. Set response_error to undef to prevent
@@ -336,11 +381,12 @@ sub current_trends {
     my $url  = $self->{searchapiurl} . "/trends/current.json";
     my $retval;
 
-	if (defined $args) {
-		$url .= "?"
-	}
+    if ( defined $args ) {
+        $url .= "?";
+    }
 
     foreach my $argname ( sort keys %{$args} ) {
+
         # drop arguments with undefined values
         next unless defined $args->{$argname};
         $url .= "&" unless substr( $url, -1 ) eq "?";
@@ -378,11 +424,12 @@ sub daily_trends {
     my $url  = $self->{searchapiurl} . "/trends/daily.json";
     my $retval;
 
-	if (defined $args) {
-		$url .= "?"
-	}
+    if ( defined $args ) {
+        $url .= "?";
+    }
 
     foreach my $argname ( sort keys %{$args} ) {
+
         # drop arguments with undefined values
         next unless defined $args->{$argname};
         $url .= "&" unless substr( $url, -1 ) eq "?";
@@ -420,11 +467,12 @@ sub weekly_trends {
     my $url  = $self->{searchapiurl} . "/trends/weekly.json";
     my $retval;
 
-	if (defined $args) {
-		$url .= "?"
-	}
+    if ( defined $args ) {
+        $url .= "?";
+    }
 
     foreach my $argname ( sort keys %{$args} ) {
+
         # drop arguments with undefined values
         next unless defined $args->{$argname};
         $url .= "&" unless substr( $url, -1 ) eq "?";
@@ -455,7 +503,6 @@ sub weekly_trends {
     }
     return $retval;
 }
-
 
 ### Load method data into %apicalls at runtime.
 
